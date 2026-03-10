@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>📡 Goal Radar by capitano_ttv</title>
+  <title>📡 Goals Radar by capitano_ttv</title>
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700;900&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
@@ -26,6 +26,26 @@
     .container{max-width:620px;margin:0 auto;padding:14px 12px}
 
 ```
+/* ── DESKTOP LAYOUT ── */
+body.desktop-mode .container{max-width:1400px;padding:16px 20px}
+body.desktop-mode .header > div{max-width:1400px}
+body.desktop-mode .cards-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;align-items:start}
+body.desktop-mode .cards-grid .card{margin-bottom:0}
+body.desktop-mode .card{font-size:105%}
+body.desktop-mode .team-name{font-size:19px!important}
+body.desktop-mode .score{font-size:40px!important}
+body.desktop-mode .min-badge{font-size:32px!important}
+body.desktop-mode .xg-val{font-size:28px!important}
+body.desktop-mode .tabs{gap:6px}
+body.desktop-mode .tab{font-size:13px;padding:12px 0}
+body.desktop-mode .section-header{margin-bottom:18px}
+body.desktop-mode .filter-btn{font-size:12px;padding:5px 14px}
+
+/* view toggle button */
+.view-toggle{display:flex;align-items:center;gap:4px;background:#0f172a;border:1px solid #1e293b;color:#94a3b8;border-radius:9px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:700;transition:all .2s;white-space:nowrap}
+.view-toggle:hover{border-color:#7c3aed;color:#a78bfa}
+.view-toggle.active{border-color:#7c3aed;background:#2e1065;color:#a78bfa}
+
 /* CARD */
 .card{background:linear-gradient(135deg,#0f172a,#111827);border:1px solid #1e293b;border-left-width:8px;border-left-color:#1e293b;border-radius:16px;margin-bottom:14px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.5);transition:transform .2s}
 .card:hover{transform:translateY(-1px)}
@@ -108,6 +128,7 @@
 .ai-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(124,58,237,0.5)}
 .section-header{display:flex;align-items:center;gap:8px;margin-bottom:14px;padding:10px 14px;background:linear-gradient(135deg,#1e1b4b,#0f172a);border-radius:12px;border:1px solid #7c3aed33}
 .source-tag{font-size:8px;color:#1e293b;font-weight:600;text-align:center;margin-top:8px;letter-spacing:.5px}
+.xg-chart{margin:8px 0;background:#0a0e1a;border:1px solid #1e293b;border-radius:10px;padding:8px 10px;}
 
 /* RADAR SVG icon */
 .radar-icon{display:inline-block;vertical-align:middle;margin-right:8px;flex-shrink:0}
@@ -115,15 +136,21 @@
 /* GOL CELEBRATION OVERLAY */
 .gol-overlay{position:fixed;inset:0;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;opacity:0;transition:opacity .3s}
 .gol-overlay.show{opacity:1}
-.gol-overlay.hide{opacity:0;transition:opacity .6s}
-.gol-text{font-family:'Oswald',sans-serif;font-size:clamp(80px,22vw,160px);font-weight:900;letter-spacing:8px;color:#fff;text-shadow:0 0 60px #22c55e,0 0 120px #22c55e,0 0 20px #fff;animation:golpop .35s cubic-bezier(.17,.67,.35,1.4) forwards}
+.gol-overlay.hide{opacity:0;transition:opacity .8s}
+.gol-text{font-family:'Oswald',sans-serif;font-size:clamp(80px,22vw,160px);font-weight:900;letter-spacing:8px;color:#fff;text-shadow:0 0 60px #22c55e,0 0 120px #22c55e,0 0 200px #22c55e,0 0 20px #fff;animation:golpop .35s cubic-bezier(.17,.67,.35,1.4) forwards}
+.gol-emoji{font-size:clamp(40px,12vw,80px);animation:golpop .35s .1s cubic-bezier(.17,.67,.35,1.4) both;display:block;margin-bottom:4px}
 .gol-team{font-family:'Oswald',sans-serif;font-size:clamp(22px,6vw,42px);font-weight:700;color:#4ade80;letter-spacing:4px;margin-top:-10px;animation:golslide .5s .2s ease forwards;opacity:0;transform:translateY(20px)}
 .gol-score{font-family:'Oswald',sans-serif;font-size:clamp(28px,8vw,56px);font-weight:900;color:#fff;margin-top:12px;opacity:0;animation:golslide .5s .35s ease forwards;transform:translateY(20px)}
-.gol-bg{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(34,197,94,0.45) 0%,rgba(10,14,26,0.97) 70%)}
+.gol-scorer-name{font-family:'Oswald',sans-serif;font-size:clamp(14px,4vw,24px);font-weight:700;color:#facc15;letter-spacing:2px;margin-top:8px;opacity:0;animation:golslide .5s .5s ease forwards;transform:translateY(20px)}
+.gol-bg{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(34,197,94,0.55) 0%,rgba(10,14,26,0.97) 65%)}
+.gol-ring{position:absolute;width:min(80vw,80vh);height:min(80vw,80vh);border-radius:50%;border:3px solid rgba(34,197,94,0.4);animation:golring 1s ease-out forwards}
+.gol-ring2{animation-delay:.3s;opacity:0}
 .gol-particles{position:absolute;inset:0;overflow:hidden}
 @keyframes golpop{0%{transform:scale(0.4) rotate(-8deg);opacity:0}60%{transform:scale(1.12) rotate(2deg)}100%{transform:scale(1) rotate(0deg);opacity:1}}
 @keyframes golslide{to{opacity:1;transform:translateY(0)}}
+@keyframes golring{0%{transform:scale(0.2);opacity:1}100%{transform:scale(2.5);opacity:0}}
 @keyframes particle{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0}}
+@keyframes flashbg{0%,100%{background:rgba(34,197,94,0)}25%,75%{background:rgba(34,197,94,0.15)}}
 
 @keyframes dotpulse{0%,100%{opacity:1}50%{opacity:.15}}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -151,13 +178,14 @@
               </circle>
               <path d="M14 14 L24 5" stroke="#34d399" stroke-width="6" stroke-linecap="round" opacity="0.08"/>
             </svg>
-            GOAL RADAR
+            GOALS RADAR
           </div>
           <span class="badge" id="modeBadge">DEMO</span>
         </div>
         <div class="subtitle">BY CAPITANO_TTV · XG FUSION 51 FONTI</div>
       </div>
-      <div style="display:flex;gap:7px">
+      <div style="display:flex;gap:7px;align-items:center">
+        <button class="view-toggle" id="viewToggleBtn" onclick="toggleView()" title="Cambia layout">📱</button>
         <button class="refresh-btn" onclick="fetchLive()">↻</button>
         <button class="ai-btn" onclick="openAI()">🤖 Prevedi</button>
       </div>
@@ -171,6 +199,8 @@
       <button class="tab" onclick="setTab('ht',this)">⏱ PRIMO TEMPO</button>
       <button class="tab" onclick="setTab('ft',this)">⚽ SECONDO TEMPO</button>
       <button class="tab active" onclick="setTab('future',this)">🔮 PROSSIME</button>
+      <button class="tab" onclick="setTab('over25',this)">📈 MULTIPLE OVER 2.5</button>
+      <button class="tab" onclick="setTab('multipla',this)">🎰 MIGLIORE MULTIPLA</button>
     </div>
   </div>
 </div>
@@ -181,7 +211,7 @@
   <div class="modal" onclick="event.stopPropagation()">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
       <div>
-        <div style="font-size:9px;color:#7c3aed;font-weight:700;letter-spacing:2px">PREVISIONI AI · GOAL RADAR</div>
+        <div style="font-size:9px;color:#7c3aed;font-weight:700;letter-spacing:2px">PREVISIONI AI · GOALS RADAR</div>
         <div style="font-family:'Oswald',sans-serif;font-size:20px;font-weight:900;color:#f1f5f9">⚽ Gol in arrivo?</div>
       </div>
       <button onclick="closeAI()" style="background:#0f172a;border:1px solid #1e293b;border-radius:10px;padding:6px 11px;font-size:16px;cursor:pointer;color:#94a3b8">✕</button>
@@ -195,12 +225,16 @@
 <!-- GOL CELEBRATION OVERLAY -->
 
 <div class="gol-overlay" id="golOverlay">
-  <div class="gol-bg"></div>
+  <div class="gol-bg" id="golBg"></div>
+  <div class="gol-ring"></div>
+  <div class="gol-ring gol-ring2"></div>
   <div class="gol-particles" id="golParticles"></div>
   <div style="position:relative;text-align:center;z-index:2">
+    <span class="gol-emoji">⚽</span>
     <div class="gol-text">GOL!</div>
     <div class="gol-team" id="golTeam">JUVENTUS</div>
-    <div class="gol-score" id="golScore">1 – 0</div>
+    <div class="gol-score" id="golScore">1 - 0</div>
+    <div class="gol-scorer-name" id="golScorer"></div>
   </div>
 </div>
 
@@ -213,7 +247,7 @@ const LEAGUES={
   la_liga:   {name:"La Liga",         flag:"🇪🇸",color:"#fb923c"},
   bundesliga:{name:"Bundesliga",      flag:"🇩🇪",color:"#f43f5e"},
   ligue_1:   {name:"Ligue 1",         flag:"🇫🇷",color:"#818cf8"},
-  super_lig: {name:"Süper Lig",       flag:"🇹🇷",color:"#f87171"},
+  super_lig: {name:"Super Lig",       flag:"🇹🇷",color:"#f87171"},
   eredivisie:{name:"Eredivisie",      flag:"🇳🇱",color:"#fb923c"},
   primeira:  {name:"Primeira Liga",   flag:"🇵🇹",color:"#4ade80"},
   ucl:       {name:"Champions Lge",   flag:"🏆",color:"#facc15"},
@@ -225,14 +259,14 @@ const LEAGUES={
   other:     {name:"Altri Camp.",     flag:"🌍",color:"#94a3b8"},
 };
 
-// ══════════════════════════════════════════════════════════════════════
-//  TEAM_DB v4 — Parametri calibrati da fonti multiple 2025/26
+// ======================================================================
+//  TEAM_DB v4 - Parametri calibrati da fonti multiple 2025/26
 //
 //  atk / def: Maher (1982) attack/defence parameters
 //    Calibrati con: FBref npxG/shot, Understat xG cumulato stagione,
 //    SFStats shot frequency + SOT%, StatsBomb open-play xG,
 //    OpenFootball gol segnati/subiti (storico 5 stagioni),
-//    Transfermarkt valore rosa (proxy qualità), WhoScored ratings,
+//    Transfermarkt valore rosa (proxy qualita), WhoScored ratings,
 //    Sofascore form index, Fotmob xG momentum stagionale
 //
 //  form (1-15): ultimi 5 risultati pesati
@@ -240,13 +274,13 @@ const LEAGUES={
 //    Soccerway H2H, ScoreTrend momentum, 1x2Stats form rating,
 //    StatisticheCalcio media punti ultimi 5, BetPractice trend
 //
-//  tm: valore mercato normalizzato (Transfermarkt, milioni €)
+//  tm: valore mercato normalizzato (Transfermarkt, milioni ?)
 //  cs: clean sheet rate stagione (FBref / OpenFootball / SFStats)
 //  xgA: xG against per partita (Understat / FBref / StatsBomb)
 //  xgF: xG for per partita (Understat / FBref / StatsBomb)
-// ══════════════════════════════════════════════════════════════════════
+// ======================================================================
 const TEAM_DB={
-  // ── SERIE A ── (calibrati su OpenFootball 2025/26 + FBref + Understat + StatisticheCalcio)
+  // -- SERIE A -- (calibrati su OpenFootball 2025/26 + FBref + Understat + StatisticheCalcio)
   "AC Milan":           {rank:3, atk:1.19,def:0.87,form:9,  tm:520, cs:0.38,xgF:1.52,xgA:1.21},
   "Inter":              {rank:1, atk:1.44,def:0.71,form:13, tm:720, cs:0.45,xgF:1.89,xgA:0.98},
   "SSC Napoli":         {rank:2, atk:1.37,def:0.79,form:12, tm:680, cs:0.41,xgF:1.78,xgA:1.05},
@@ -267,7 +301,7 @@ const TEAM_DB={
   "Sassuolo Calcio":    {rank:15,atk:0.96,def:1.05,form:6,  tm:72,  cs:0.21,xgF:1.12,xgA:1.55},
   "US Cremonese":       {rank:19,atk:0.79,def:1.25,form:4,  tm:42,  cs:0.14,xgF:0.88,xgA:1.92},
   "Pisa SC":            {rank:20,atk:0.78,def:1.28,form:4,  tm:38,  cs:0.13,xgF:0.85,xgA:1.98},
-  // ── PREMIER LEAGUE ── (FBref + Understat + OpenFootball + SFStats 2025/26)
+  // -- PREMIER LEAGUE -- (FBref + Understat + OpenFootball + SFStats 2025/26)
   "Arsenal FC":         {rank:2, atk:1.39,def:0.74,form:13, tm:890, cs:0.44,xgF:1.95,xgA:0.95},
   "Chelsea FC":         {rank:4, atk:1.26,def:0.89,form:10, tm:780, cs:0.36,xgF:1.62,xgA:1.18},
   "Liverpool FC":       {rank:1, atk:1.49,def:0.69,form:14, tm:950, cs:0.46,xgF:2.05,xgA:0.92},
@@ -289,7 +323,7 @@ const TEAM_DB={
   "Nottingham Forest":  {rank:17,atk:0.85,def:1.15,form:6,  tm:178, cs:0.20,xgF:1.02,xgA:1.68},
   "Fulham FC":          {rank:11,atk:1.04,def:1.01,form:7,  tm:298, cs:0.27,xgF:1.31,xgA:1.40},
   "Wolverhampton Wanderers":{rank:20,atk:0.78,def:1.28,form:4,tm:148,cs:0.15,xgF:0.88,xgA:1.95},
-  // ── LA LIGA ── (FBref + Understat + StatsBomb 2025/26)
+  // -- LA LIGA -- (FBref + Understat + StatsBomb 2025/26)
   "FC Barcelona":       {rank:1, atk:1.52,def:0.67,form:14, tm:1050,cs:0.48,xgF:2.18,xgA:0.88},
   "Real Madrid":        {rank:2, atk:1.44,def:0.74,form:12, tm:980, cs:0.43,xgF:1.98,xgA:0.98},
   "Atletico Madrid":    {rank:3, atk:1.23,def:0.81,form:11, tm:680, cs:0.38,xgF:1.62,xgA:1.08},
@@ -310,7 +344,7 @@ const TEAM_DB={
   "RC Celta de Vigo":   {rank:17,atk:0.82,def:1.17,form:5,  tm:82,  cs:0.17,xgF:0.92,xgA:1.80},
   "Deportivo Alaves":   {rank:18,atk:0.79,def:1.24,form:4,  tm:72,  cs:0.15,xgF:0.88,xgA:1.90},
   "Real Oviedo":        {rank:20,atk:0.74,def:1.35,form:3,  tm:58,  cs:0.11,xgF:0.80,xgA:2.12},
-  // ── BUNDESLIGA ── (OpenFootball + FBref + Understat 2025/26)
+  // -- BUNDESLIGA -- (OpenFootball + FBref + Understat 2025/26)
   "Bayern Munich":      {rank:1, atk:1.54,def:0.71,form:13, tm:890, cs:0.44,xgF:2.12,xgA:0.95},
   "Bayer Leverkusen":   {rank:2, atk:1.39,def:0.81,form:12, tm:620, cs:0.39,xgF:1.85,xgA:1.05},
   "Borussia Dortmund":  {rank:4, atk:1.23,def:0.97,form:9,  tm:450, cs:0.29,xgF:1.55,xgA:1.32},
@@ -329,7 +363,7 @@ const TEAM_DB={
   "FC Augsburg":        {rank:16,atk:0.84,def:1.18,form:5,  tm:78,  cs:0.17,xgF:0.94,xgA:1.76},
   "FC St. Pauli":       {rank:17,atk:0.81,def:1.22,form:5,  tm:68,  cs:0.15,xgF:0.90,xgA:1.84},
   "1. FC Cologne":      {rank:18,atk:0.79,def:1.25,form:4,  tm:58,  cs:0.14,xgF:0.86,xgA:1.90},
-  // ── UCL / ALTRE SQUADRE ──
+  // -- UCL / ALTRE SQUADRE --
   "Paris Saint-Germain":{rank:1, atk:1.60,def:0.64,form:14, tm:820, cs:0.46,xgF:2.15,xgA:0.90},
   "PSG":                {rank:1, atk:1.60,def:0.64,form:14, tm:820, cs:0.46,xgF:2.15,xgA:0.90},
   "Galatasaray Istanbul":{rank:1,atk:1.39,def:0.71,form:13, tm:310, cs:0.40,xgF:1.82,xgA:1.02},
@@ -354,113 +388,113 @@ const TEAM_DB={
 function td(n){return TEAM_DB[n]||{rank:10,atk:1.0,def:1.0,form:7,tm:150,cs:0.25,xgF:1.20,xgA:1.40};}
 function formBonus(n){const t=td(n);return 1+(t.form-7.5)/7.5*0.15;}
 
-// ══════════════════════════════════════════════════════════════════════
-//  xG FUSION ENGINE v4 — 33 FONTI
+// ======================================================================
+//  xG FUSION ENGINE v4 - 33 FONTI
 //
-//  GRUPPO A — SHOT QUALITY
-//   StatsBomb  → xG per tiro (posizione, body part, assist type)
-//   Opta       → big chance definition, SOT conversion ~34%
-//   Understat  → xG cumulato stagione, npxG, blocked shots
-//   FBref      → npxG/shot, post-shot xG, progressive carries
-//   WhoScored  → shot accuracy index, zone weights
-//   SFStats    → shot frequency + SOT% per squadra / stagione
+//  GRUPPO A - SHOT QUALITY
+//   StatsBomb  -> xG per tiro (posizione, body part, assist type)
+//   Opta       -> big chance definition, SOT conversion ~34%
+//   Understat  -> xG cumulato stagione, npxG, blocked shots
+//   FBref      -> npxG/shot, post-shot xG, progressive carries
+//   WhoScored  -> shot accuracy index, zone weights
+//   SFStats    -> shot frequency + SOT% per squadra / stagione
 //
-//  GRUPPO B — PRESSIONE / TERRITORIO / MOMENTUM
-//   Sofascore  → dangerous attacks 0.022, momentum index live
-//   Fotmob     → xG shot map cluster density, momentum live
-//   Overlyzer  → territory pressure index, corner zone value
-//   Wyscout    → PPDA (passes per defensive action) proxy
-//   ScoreTrend → trend pressione ultimi 10 min (+12%)
-//   Flashscore → live pressure score, tempo zona offensiva
-//   Diretta.it → stats live: attacchi, corner, falli, possesso
+//  GRUPPO B - PRESSIONE / TERRITORIO / MOMENTUM
+//   Sofascore  -> dangerous attacks 0.022, momentum index live
+//   Fotmob     -> xG shot map cluster density, momentum live
+//   Overlyzer  -> territory pressure index, corner zone value
+//   Wyscout    -> PPDA (passes per defensive action) proxy
+//   ScoreTrend -> trend pressione ultimi 10 min (+12%)
+//   Flashscore -> live pressure score, tempo zona offensiva
+//   Diretta.it -> stats live: attacchi, corner, falli, possesso
 //
-//  GRUPPO C — ODDS / MERCATO
-//   bet365     → over/under 2.5 line → league goal avg implicito
-//   Snai       → calibrazione Serie A / UCL mercato italiano
-//   Betfair    → exchange liquidity proxy certezza evento
-//   BetPractice→ Kelly Criterion goal probability model
-//   1x2Stats   → modello 1X2 + BTTS + Over, form rating
+//  GRUPPO C - ODDS / MERCATO
+//   bet365     -> over/under 2.5 line -> league goal avg implicito
+//   Snai       -> calibrazione Serie A / UCL mercato italiano
+//   Betfair    -> exchange liquidity proxy certezza evento
+//   BetPractice-> Kelly Criterion goal probability model
+//   1x2Stats   -> modello 1X2 + BTTS + Over, form rating
 //
-//  GRUPPO D — DATI STORICI / STRUTTURALI
-//   OpenFootball (GitHub) → risultati storici 2025/26 pubblici,
+//  GRUPPO D - DATI STORICI / STRUTTURALI
+//   OpenFootball (GitHub) -> risultati storici 2025/26 pubblici,
 //                           gol/partita per campionato, clean sheets
-//   Transfermarkt → valore di mercato rosa → proxy qualità
-//   CIES Observatory → ranking club, intensità campionato
-//   StatisticheCalcio → medie storiche Serie A per squadra
-//   SFStats    → xG cumulato stagione, SOT%, shot frequency
+//   Transfermarkt -> valore di mercato rosa -> proxy qualita
+//   CIES Observatory -> ranking club, intensita campionato
+//   StatisticheCalcio -> medie storiche Serie A per squadra
+//   SFStats    -> xG cumulato stagione, SOT%, shot frequency
 //
-//  GRUPPO E — AGGREGATORI REAL-TIME
-//   Livescore  → live score change detection, minuto gol
-//   xScores    → last-15-min pressure model, intensità finale
-//   Soccerway  → H2H storico, clean sheet rate
-//   OptaAnalyst→ Fergie Time +18.5% da min 75, press intensity
-//   The Athletic→ tactical xG post-match calibration
+//  GRUPPO E - AGGREGATORI REAL-TIME
+//   Livescore  -> live score change detection, minuto gol
+//   xScores    -> last-15-min pressure model, intensita finale
+//   Soccerway  -> H2H storico, clean sheet rate
+//   OptaAnalyst-> Fergie Time +18.5% da min 75, press intensity
+//   The Athletic-> tactical xG post-match calibration
 //
 //  STRUTTURALE
-//   Dixon-Coles (1997) + Maher (1982) → Poisson bivariato
-// ══════════════════════════════════════════════════════════════════════
+//   Dixon-Coles (1997) + Maher (1982) -> Poisson bivariato
+// ======================================================================
 
-// ═══════════════════════════════════════════════════════════════════════
-//  XG FUSION ENGINE v4 — 51 FONTI
+// =======================================================================
+//  XG FUSION ENGINE v4 - 51 FONTI
 //
-//  GRUPPO A — SHOT QUALITY
-//   StatsBomb · Opta · Understat · FBref · WhoScored · SFStats
-//   StatsPerform · StatsHub · GeniusSports · FCStats · GoalStatistics
+//  GRUPPO A - SHOT QUALITY
+//   StatsBomb . Opta . Understat . FBref . WhoScored . SFStats
+//   StatsPerform . StatsHub . GeniusSports . FCStats . GoalStatistics
 //
-//  GRUPPO B — PRESSIONE / TERRITORIO / MOMENTUM
-//   Sofascore · Fotmob · Overlyzer · Wyscout · ScoreTrend
-//   Flashscore · Diretta.it · 365Scores · LiveSports · Scoreroom
+//  GRUPPO B - PRESSIONE / TERRITORIO / MOMENTUM
+//   Sofascore . Fotmob . Overlyzer . Wyscout . ScoreTrend
+//   Flashscore . Diretta.it . 365Scores . LiveSports . Scoreroom
 //
-//  GRUPPO C — ODDS / MERCATO
-//   bet365 · Snai · Betfair · BetPractice · 1x2Stats
-//   BetExplorer · ProbBettingHub
+//  GRUPPO C - ODDS / MERCATO
+//   bet365 . Snai . Betfair . BetPractice . 1x2Stats
+//   BetExplorer . ProbBettingHub
 //
-//  GRUPPO D — DATI STORICI / STRUTTURALI
-//   Transfermarkt · CIES · StatisticheCalcio · FootyStats
-//   LegaSerieA.it · UEFA.com · PremierLeague.com · LaLiga.com
-//   Calcio.com · Soccerway · The Athletic · SkySport
+//  GRUPPO D - DATI STORICI / STRUTTURALI
+//   Transfermarkt . CIES . StatisticheCalcio . FootyStats
+//   LegaSerieA.it . UEFA.com . PremierLeague.com . LaLiga.com
+//   Calcio.com . Soccerway . The Athletic . SkySport
 //
 //  STRUTTURALE
-//   Dixon-Coles (1997) · Maher (1982) · Poisson bivariato
-// ═══════════════════════════════════════════════════════════════════════
+//   Dixon-Coles (1997) . Maher (1982) . Poisson bivariato
+// =======================================================================
 
 const XG_COEFF={
-  // ── A: Shot quality (StatsBomb · Opta · Understat · FBref · WhoScored · SFStats)
+  // -- A: Shot quality (StatsBomb . Opta . Understat . FBref . WhoScored . SFStats)
   sot:           0.342,  // SOT open-play avg conversion (Opta/StatsBomb 5yr avg)
   shot_off:      0.040,  // blocked/off-target (Understat avg xG non-SOT)
   big_chance:    0.448,  // big chance Opta: 448 conversioni / 1000
   postshot_adj:  0.016,  // FBref post-shot vs pre-shot delta
-  sot_pct_bonus: 0.008,  // SFStats: SOT% sopra media → bonus per tiro extra
-  // ── B: Pressione/territorio (Sofascore · Fotmob · Overlyzer · Wyscout · ScoreTrend · Flashscore · Diretta)
+  sot_pct_bonus: 0.008,  // SFStats: SOT% sopra media -> bonus per tiro extra
+  // -- B: Pressione/territorio (Sofascore . Fotmob . Overlyzer . Wyscout . ScoreTrend . Flashscore . Diretta)
   corner:        0.056,  // Overlyzer territory pressure index per corner
   dang_att:      0.022,  // Sofascore/Fotmob dangerous attack weight
-  ppda_proxy:    0.31,   // Wyscout PPDA → possesso pesato offensivo
+  ppda_proxy:    0.31,   // Wyscout PPDA -> possesso pesato offensivo
   trend_boost:   1.12,   // ScoreTrend: +12% se pressione crescente
   flash_zone:    0.008,  // Flashscore/Diretta: % tempo zona offensiva
   momentum_win:  1.06,   // Fotmob: squadra con momentum positivo boost
-  // ── C: Set piece e disciplinare (Opta · Soccer Association · Soccerway)
+  // -- C: Set piece e disciplinare (Opta . Soccer Association . Soccerway)
   penalty:       0.762,  // storico conversione rigori Opta/FBref 5yr
   foul_off:      0.011,  // fallo subito zona offensiva
   freekick_box:  0.038,  // calcio di punizione in area (Opta)
-  red_mult:      1.32,   // uomo in più: +32% xG (Opta/WhoScored)
-  // ── C: League averages calibrati odds (bet365 · Snai · Betfair · BetPractice · 1x2Stats)
+  red_mult:      1.32,   // uomo in piu: +32% xG (Opta/WhoScored)
+  // -- C: League averages calibrati odds (bet365 . Snai . Betfair . BetPractice . 1x2Stats)
   league_avg:{
     ucl:1.448, epl:1.364, serie_a:1.293, la_liga:1.336,
     bundesliga:1.495, ligue_1:1.264, super_lig:1.328,
     eredivisie:1.386, primeira:1.244, uel:1.305, uecl:1.220, other:1.285,
   },
-  // ── D: Strutturale (Dixon-Coles · Maher · OpenFootball · Transfermarkt · CIES)
+  // -- D: Strutturale (Dixon-Coles . Maher . OpenFootball . Transfermarkt . CIES)
   home_adv:      1.082,  // BetPractice home advantage factor
-  tm_scale:      0.022,  // Transfermarkt: valore mercato → bonus atk (per 100M€)
-  cs_penalty:    0.92,   // OpenFootball/SFStats: cs_rate alta avversario → penalità
-  // ── E: Real-time (OptaAnalyst · xScores · Livescore · ScoreTrend · Flashscore)
+  tm_scale:      0.022,  // Transfermarkt: valore mercato -> bonus atk (per 100M?)
+  cs_penalty:    0.92,   // OpenFootball/SFStats: cs_rate alta avversario -> penalita
+  // -- E: Real-time (OptaAnalyst . xScores . Livescore . ScoreTrend . Flashscore)
   fergie_min:    75,     // OptaAnalyst: Fergie Time start
   fergie_mult:   1.185,  // OptaAnalyst: +18.5% xG
   last15_min:    60,     // xScores: last-15-min pressure boost start
   last15_mult:   1.08,   // xScores: +8% pressione finale
 };
 
-// ── CIES Observatory: coefficiente ranking club
+// -- CIES Observatory: coefficiente ranking club
 function ciesBoost(name){
   const t=td(name);
   if(t.rank<=2)  return 1.10;
@@ -469,30 +503,30 @@ function ciesBoost(name){
   return 0.97;
 }
 
-// ── Transfermarkt: valore mercato → bonus offensivo
+// -- Transfermarkt: valore mercato -> bonus offensivo
 function tmvBonus(name){
   const t=td(name);
-  const tmNorm=Math.min((t.tm||150)/900,1); // normalizza su PSG=900M€ max
+  const tmNorm=Math.min((t.tm||150)/900,1); // normalizza su PSG=900M? max
   const formNorm=(t.form||7)/15;
-  return 0.88+(tmNorm*0.5+formNorm*0.5)*0.28; // range 0.88–1.16
+  return 0.88+(tmNorm*0.5+formNorm*0.5)*0.28; // range 0.88?1.16
 }
 
-// ── OpenFootball / SFStats / FBref: clean sheet rate adversary penalty
+// -- OpenFootball / SFStats / FBref: clean sheet rate adversary penalty
 function csRateMult(attackerName, defenderName){
   const def=td(defenderName);
   const cs=def.cs||0.25;
-  if(cs>0.40) return XG_COEFF.cs_penalty;      // difesa forte → riduce xG
-  if(cs<0.20) return 1+(0.20-cs)*0.8;           // difesa debole → aumenta xG
+  if(cs>0.40) return XG_COEFF.cs_penalty;      // difesa forte -> riduce xG
+  if(cs<0.20) return 1+(0.20-cs)*0.8;           // difesa debole -> aumenta xG
   return 1.0;
 }
 
-// ── Understat / FBref: xgF storico stagione come prior offensivo
+// -- Understat / FBref: xgF storico stagione come prior offensivo
 function xgFPrior(name){
   const t=td(name);
   return t.xgF||1.25; // xG for per partita stagione in corso
 }
 
-// ── ScoreTrend / Flashscore / Fotmob: momentum offensivo ultimi 10'
+// -- ScoreTrend / Flashscore / Fotmob: momentum offensivo ultimi 10'
 function momentumBoost(m,side){
   const min=Math.max(m.min,1);
   const corn=side==='h'?(m.hCorn||0):(m.aCorn||0);
@@ -503,13 +537,13 @@ function momentumBoost(m,side){
   return 1.0;
 }
 
-// ═══════════════ calcXG — MOTORE PRINCIPALE ═══════════════════════════
+// =============== calcXG - MOTORE PRINCIPALE ===========================
 function calcXG(m){
   const min=Math.max(m.min,1);
   const hT=td(m.home), aT=td(m.away);
   const C=XG_COEFF;
 
-  // ── A: Shot quality (StatsBomb · Opta · Understat · FBref · WhoScored · SFStats)
+  // -- A: Shot quality (StatsBomb . Opta . Understat . FBref . WhoScored . SFStats)
   const hShot=(m.hSOT||0)*C.sot
              +Math.max((m.hSh||0)-(m.hSOT||0),0)*C.shot_off
              +(m.hBC||0)*C.big_chance
@@ -521,31 +555,31 @@ function calcXG(m){
              +(m.aSOT||0)*C.postshot_adj
              +(m.aSh||0)*C.sot_pct_bonus;
 
-  // ── B: Pressione territorio (Overlyzer · Sofascore · Fotmob · Wyscout · Diretta · Flashscore)
+  // -- B: Pressione territorio (Overlyzer . Sofascore . Fotmob . Wyscout . Diretta . Flashscore)
   const hPress=(m.hCorn||0)*C.corner+(m.hDangAtt||0)*C.dang_att+(m.hOffZone||0)*C.flash_zone;
   const aPress=(m.aCorn||0)*C.corner+(m.aDangAtt||0)*C.dang_att+(m.aOffZone||0)*C.flash_zone;
 
-  // ── B2: PPDA possesso (Wyscout · FBref · CIES)
+  // -- B2: PPDA possesso (Wyscout . FBref . CIES)
   const hPoss=((m.hP||50)/100)*C.ppda_proxy;
   const aPoss=((m.aP||50)/100)*C.ppda_proxy;
 
-  // ── C: Set piece e disciplinare
+  // -- C: Set piece e disciplinare
   const hSet=(m.hPen||0)*C.penalty+(m.aFouls||0)*C.foul_off+(m.hFK||0)*C.freekick_box;
   const aSet=(m.aPen||0)*C.penalty+(m.hFouls||0)*C.foul_off+(m.aFK||0)*C.freekick_box;
 
-  // ── Rosso, Momentum, CS rate
+  // -- Rosso, Momentum, CS rate
   const hRedMult=m.aRed?C.red_mult:1.0;
   const aRedMult=m.hRed?C.red_mult:1.0;
   const hMom=momentumBoost(m,'h'), aMom=momentumBoost(m,'a');
   const hCS=csRateMult(m.home,m.away), aCS=csRateMult(m.away,m.home);
 
-  // ── Fergie Time + xScores last-15 (OptaAnalyst · xScores)
+  // -- Fergie Time + xScores last-15 (OptaAnalyst . xScores)
   const fergie=min>=C.fergie_min?C.fergie_mult:1.0;
   const last15=min>=C.last15_min?C.last15_mult:1.0;
   const timeMult=fergie*last15;
 
-  // ── Dixon-Coles + Maher: modello strutturale
-  //    Calibrato: bet365 · Snai · Betfair · BetPractice · 1x2Stats
+  // -- Dixon-Coles + Maher: modello strutturale
+  //    Calibrato: bet365 . Snai . Betfair . BetPractice . 1x2Stats
   //    Dati storici: OpenFootball 2025/26 + StatisticheCalcio
   const avg=C.league_avg[m.league]||C.league_avg.other;
 
@@ -556,10 +590,10 @@ function calcXG(m){
   const aMod=(aT.atk*hT.def*avg*formBonus(m.away)*ciesBoost(m.away)
              +aXgPrior*0.15)/1.15;
 
-  // ── Transfermarkt: valore mercato → bonus offensivo
+  // -- Transfermarkt: valore mercato -> bonus offensivo
   const hTMV=tmvBonus(m.home), aTMV=tmvBonus(m.away);
 
-  // ── Blend dinamico: più minuti → più peso stats live
+  // -- Blend dinamico: piu minuti -> piu peso stats live
   const w=Math.min(min/45,1.0);
   const blend=Math.min(min/28,1.0);
   const hStat=(hShot+hPress+hPoss+hSet)*w*hMom*hCS;
@@ -587,186 +621,261 @@ function scorerProb(m,xg,side){
   return Math.min((1-Math.exp(-rate*rb*formBonus(name)))*100,99);
 }
 
-// ══════════════════════════════════════════════════════════════════════
-//  DEFENDER_DB — Difensori con più probabilità di segnare
-//  Fonti: Wikipedia (altezza/fisico) · FBref (xG/90, gol) · WhoScored
-//         Understat · Transfermarkt · StatsBomb (set piece threat)
-//         GiveMeSport UCL 2025/26 · PremierLeague.com
+// ======================================================================
+//  DEFENDER_DB - Difensori con piu probabilita di segnare
+//  Fonti: Wikipedia (altezza/fisico) . FBref (xG/90, gol) . WhoScored
+//         Understat . Transfermarkt . StatsBomb (set piece threat)
+//         GiveMeSport UCL 2025/26 . PremierLeague.com
 //
 //  Campi:
-//    name    → nome giocatore
-//    pos     → CB=centrale, LB=terzino sx, RB=terzino dx, WB=wingback
-//    h       → altezza in cm (Wikipedia/Transfermarkt)
-//    goals   → gol stagione 2025/26 (FBref/Understat)
-//    xg90    → xG per 90 minuti (FBref/StatsBomb)
-//    sp      → set piece threat score 1-10 (WhoScored/Opta)
-//    head    → pericolosità aerea 1-10 (altezza+salto+timing)
-//    form    → forma recente 1-5
-// ══════════════════════════════════════════════════════════════════════
+//    name    -> nome giocatore
+//    pos     -> CB=centrale, LB=terzino sx, RB=terzino dx, WB=wingback
+//    h       -> altezza in cm (Wikipedia/Transfermarkt)
+//    goals   -> gol stagione 2025/26 (FBref/Understat)
+//    xg90    -> xG per 90 minuti (FBref/StatsBomb)
+//    sp      -> set piece threat score 1-10 (WhoScored/Opta)
+//    head    -> pericolosita aerea 1-10 (altezza+salto+timing)
+//    form    -> forma recente 1-5
+// ======================================================================
 const DEFENDER_DB = {
-  // ── INTER ──
+  // -- INTER --
   "Inter": [
     {name:"Alessandro Bastoni",   pos:"CB", h:190, goals:2, xg90:0.07, sp:7, head:7, form:4},
     {name:"Francesco Acerbi",     pos:"CB", h:192, goals:1, xg90:0.05, sp:6, head:8, form:4},
     {name:"Federico Dimarco",     pos:"WB", h:175, goals:3, xg90:0.10, sp:8, head:5, form:5},
     {name:"Denzel Dumfries",      pos:"WB", h:187, goals:2, xg90:0.08, sp:7, head:7, form:4},
   ],
-  // ── JUVENTUS ──
+  // -- JUVENTUS --
   "Juventus": [
     {name:"Gleison Bremer",       pos:"CB", h:188, goals:2, xg90:0.09, sp:7, head:9, form:4},
     {name:"Andrea Cambiaso",      pos:"LB", h:183, goals:3, xg90:0.11, sp:8, head:6, form:5},
     {name:"Federico Gatti",       pos:"CB", h:191, goals:3, xg90:0.10, sp:7, head:9, form:4},
     {name:"Danilo",               pos:"RB", h:184, goals:1, xg90:0.05, sp:6, head:6, form:3},
   ],
-  // ── SSC NAPOLI ──
+  // -- SSC NAPOLI --
   "SSC Napoli": [
     {name:"Alessandro Buongiorno",pos:"CB", h:190, goals:2, xg90:0.08, sp:7, head:8, form:4},
     {name:"Mathias Olivera",      pos:"LB", h:180, goals:1, xg90:0.06, sp:6, head:5, form:4},
     {name:"Giovanni Di Lorenzo",  pos:"RB", h:183, goals:2, xg90:0.09, sp:7, head:6, form:5},
     {name:"Leo Ostigard",         pos:"CB", h:189, goals:1, xg90:0.05, sp:5, head:8, form:3},
   ],
-  // ── AC MILAN ──
+  // -- AC MILAN --
   "AC Milan": [
     {name:"Fikayo Tomori",        pos:"CB", h:185, goals:1, xg90:0.06, sp:6, head:7, form:4},
     {name:"Theo Hernandez",       pos:"LB", h:184, goals:4, xg90:0.14, sp:9, head:6, form:5},
     {name:"Davide Calabria",      pos:"RB", h:175, goals:1, xg90:0.05, sp:5, head:5, form:3},
     {name:"Malick Thiaw",         pos:"CB", h:191, goals:1, xg90:0.06, sp:6, head:8, form:4},
   ],
-  // ── ATALANTA BC ──
+  // -- ATALANTA BC --
   "Atalanta BC": [
     {name:"Berat Djimsiti",       pos:"CB", h:189, goals:2, xg90:0.08, sp:7, head:8, form:4},
     {name:"Isak Hien",            pos:"CB", h:190, goals:2, xg90:0.09, sp:7, head:8, form:4},
     {name:"Matteo Ruggeri",       pos:"LB", h:182, goals:2, xg90:0.08, sp:7, head:6, form:4},
   ],
-  // ── LAZIO ROME ──
+  // -- LAZIO ROME --
   "Lazio Rome": [
     {name:"Alessio Romagnoli",    pos:"CB", h:186, goals:1, xg90:0.06, sp:6, head:7, form:3},
     {name:"Patric",               pos:"CB", h:184, goals:1, xg90:0.05, sp:5, head:6, form:3},
     {name:"Nuno Tavares",         pos:"LB", h:180, goals:3, xg90:0.10, sp:8, head:5, form:4},
   ],
-  // ── AS ROMA ──
+  // -- AS ROMA --
   "AS Roma": [
     {name:"Mats Hummels",         pos:"CB", h:191, goals:2, xg90:0.08, sp:8, head:9, form:3},
     {name:"Gianluca Mancini",     pos:"CB", h:188, goals:2, xg90:0.08, sp:7, head:8, form:3},
     {name:"Leonardo Spinazzola",  pos:"LB", h:180, goals:1, xg90:0.06, sp:6, head:5, form:3},
   ],
-  // ── LIVERPOOL FC ── (UCL set piece kings: Virgil van Dijk + Konaté)
+  // -- LIVERPOOL FC -- (UCL set piece kings: Virgil van Dijk + Konate)
   "Liverpool FC": [
     {name:"Virgil van Dijk",      pos:"CB", h:193, goals:3, xg90:0.12, sp:9, head:10,form:5},
-    {name:"Ibrahima Konaté",      pos:"CB", h:194, goals:3, xg90:0.11, sp:9, head:10,form:5},
+    {name:"Ibrahima Konate",      pos:"CB", h:194, goals:3, xg90:0.11, sp:9, head:10,form:5},
     {name:"Trent Alexander-Arnold",pos:"RB",h:180, goals:2, xg90:0.10, sp:9, head:5, form:4},
     {name:"Andy Robertson",       pos:"LB", h:178, goals:1, xg90:0.07, sp:7, head:5, form:4},
   ],
-  // ── ARSENAL FC ──
+  // -- ARSENAL FC --
   "Arsenal FC": [
     {name:"William Saliba",       pos:"CB", h:192, goals:2, xg90:0.08, sp:8, head:9, form:5},
-    {name:"Gabriel Magalhães",    pos:"CB", h:190, goals:4, xg90:0.13, sp:9, head:9, form:5},
+    {name:"Gabriel Magalhaes",    pos:"CB", h:190, goals:4, xg90:0.13, sp:9, head:9, form:5},
     {name:"Oleksandr Zinchenko",  pos:"LB", h:175, goals:1, xg90:0.07, sp:7, head:4, form:4},
     {name:"Ben White",            pos:"RB", h:182, goals:1, xg90:0.05, sp:5, head:6, form:4},
   ],
-  // ── CHELSEA FC ──
+  // -- CHELSEA FC --
   "Chelsea FC": [
     {name:"Levi Colwill",         pos:"CB", h:189, goals:2, xg90:0.08, sp:7, head:8, form:4},
     {name:"Reece James",          pos:"RB", h:180, goals:2, xg90:0.09, sp:8, head:6, form:3},
     {name:"Ben Chilwell",         pos:"LB", h:178, goals:2, xg90:0.08, sp:7, head:5, form:4},
     {name:"Tosin Adarabioyo",     pos:"CB", h:196, goals:1, xg90:0.06, sp:6, head:9, form:3},
   ],
-  // ── MANCHESTER CITY ──
+  // -- MANCHESTER CITY --
   "Manchester City": [
-    {name:"Rúben Dias",           pos:"CB", h:187, goals:2, xg90:0.08, sp:7, head:8, form:4},
+    {name:"Ruben Dias",           pos:"CB", h:187, goals:2, xg90:0.08, sp:7, head:8, form:4},
     {name:"Manuel Akanji",        pos:"CB", h:187, goals:1, xg90:0.06, sp:6, head:8, form:4},
     {name:"Josko Gvardiol",       pos:"LB", h:185, goals:4, xg90:0.13, sp:9, head:8, form:5},
     {name:"Kyle Walker",          pos:"RB", h:178, goals:1, xg90:0.05, sp:5, head:5, form:3},
   ],
-  // ── NEWCASTLE UNITED ──
+  // -- NEWCASTLE UNITED --
   "Newcastle United": [
-    {name:"Fabian Schär",         pos:"CB", h:186, goals:3, xg90:0.12, sp:9, head:8, form:4},
+    {name:"Fabian Schar",         pos:"CB", h:186, goals:3, xg90:0.12, sp:9, head:8, form:4},
     {name:"Sven Botman",          pos:"CB", h:195, goals:1, xg90:0.07, sp:7, head:9, form:3},
     {name:"Dan Burn",             pos:"CB", h:198, goals:2, xg90:0.08, sp:8, head:10,form:4},
     {name:"Kieran Trippier",      pos:"RB", h:178, goals:2, xg90:0.09, sp:9, head:5, form:4},
   ],
-  // ── TOTTENHAM HOTSPUR ──
+  // -- TOTTENHAM HOTSPUR --
   "Tottenham Hotspur": [
     {name:"Cristian Romero",      pos:"CB", h:185, goals:2, xg90:0.09, sp:7, head:8, form:4},
     {name:"Micky van de Ven",     pos:"CB", h:190, goals:3, xg90:0.12, sp:8, head:8, form:4},
     {name:"Destiny Udogie",       pos:"LB", h:185, goals:2, xg90:0.08, sp:7, head:7, form:4},
   ],
-  // ── FC BARCELONA ──
+  // -- FC BARCELONA --
   "FC Barcelona": [
-    {name:"Ronald Araújo",        pos:"CB", h:188, goals:2, xg90:0.09, sp:8, head:9, form:4},
-    {name:"Pau Cubarsí",          pos:"CB", h:184, goals:1, xg90:0.06, sp:6, head:7, form:5},
-    {name:"Jules Koundé",         pos:"RB", h:178, goals:2, xg90:0.08, sp:7, head:6, form:4},
+    {name:"Ronald Araujo",        pos:"CB", h:188, goals:2, xg90:0.09, sp:8, head:9, form:4},
+    {name:"Pau Cubarsi",          pos:"CB", h:184, goals:1, xg90:0.06, sp:6, head:7, form:5},
+    {name:"Jules Kounde",         pos:"RB", h:178, goals:2, xg90:0.08, sp:7, head:6, form:4},
     {name:"Alejandro Balde",      pos:"LB", h:180, goals:2, xg90:0.08, sp:7, head:5, form:4},
   ],
-  // ── REAL MADRID ──
+  // -- REAL MADRID --
   "Real Madrid": [
-    {name:"Éder Militão",         pos:"CB", h:186, goals:2, xg90:0.08, sp:7, head:8, form:4},
-    {name:"Antonio Rüdiger",      pos:"CB", h:190, goals:3, xg90:0.11, sp:9, head:9, form:4},
+    {name:"Eder Militao",         pos:"CB", h:186, goals:2, xg90:0.08, sp:7, head:8, form:4},
+    {name:"Antonio Rudiger",      pos:"CB", h:190, goals:3, xg90:0.11, sp:9, head:9, form:4},
     {name:"David Alaba",          pos:"CB", h:180, goals:1, xg90:0.07, sp:7, head:7, form:3},
     {name:"Ferland Mendy",        pos:"LB", h:180, goals:1, xg90:0.05, sp:5, head:5, form:3},
   ],
-  // ── ATLETICO MADRID ──
+  // -- ATLETICO MADRID --
   "Atletico Madrid": [
-    {name:"José Giménez",         pos:"CB", h:187, goals:2, xg90:0.09, sp:8, head:8, form:4},
-    {name:"Clément Lenglet",      pos:"CB", h:186, goals:1, xg90:0.06, sp:6, head:7, form:3},
+    {name:"Jose Gimenez",         pos:"CB", h:187, goals:2, xg90:0.09, sp:8, head:8, form:4},
+    {name:"Clement Lenglet",      pos:"CB", h:186, goals:1, xg90:0.06, sp:6, head:7, form:3},
     {name:"Nahuel Molina",        pos:"RB", h:176, goals:2, xg90:0.08, sp:7, head:5, form:4},
   ],
-  // ── BAYERN MUNICH ──
+  // -- BAYERN MUNICH --
   "Bayern Munich": [
     {name:"Kim Min-jae",          pos:"CB", h:190, goals:2, xg90:0.09, sp:8, head:9, form:4},
     {name:"Dayot Upamecano",      pos:"CB", h:186, goals:1, xg90:0.07, sp:7, head:8, form:4},
     {name:"Alphonso Davies",      pos:"LB", h:180, goals:3, xg90:0.10, sp:8, head:6, form:5},
-    {name:"Josip Stanišić",       pos:"RB", h:183, goals:1, xg90:0.05, sp:5, head:6, form:3},
+    {name:"Josip Stanisic",       pos:"RB", h:183, goals:1, xg90:0.05, sp:5, head:6, form:3},
   ],
-  // ── BAYER LEVERKUSEN ──
+  // -- BAYER LEVERKUSEN --
   "Bayer Leverkusen": [
     {name:"Jonathan Tah",         pos:"CB", h:195, goals:3, xg90:0.11, sp:9, head:10,form:5},
     {name:"Odilon Kossounou",     pos:"CB", h:188, goals:1, xg90:0.06, sp:6, head:8, form:4},
     {name:"Alejandro Grimaldo",   pos:"LB", h:173, goals:4, xg90:0.13, sp:9, head:5, form:5},
   ],
-  // ── BORUSSIA DORTMUND ──
+  // -- BORUSSIA DORTMUND --
   "Borussia Dortmund": [
-    {name:"Niklas Süle",          pos:"CB", h:195, goals:2, xg90:0.08, sp:8, head:9, form:4},
+    {name:"Niklas Sule",          pos:"CB", h:195, goals:2, xg90:0.08, sp:8, head:9, form:4},
     {name:"Nico Schlotterbeck",   pos:"CB", h:191, goals:2, xg90:0.09, sp:8, head:9, form:4},
     {name:"Ramy Bensebaini",      pos:"LB", h:183, goals:2, xg90:0.09, sp:8, head:7, form:4},
   ],
-  // ── PARIS SAINT-GERMAIN ──
+  // -- PARIS SAINT-GERMAIN --
   "Paris Saint-Germain": [
     {name:"Marquinhos",           pos:"CB", h:183, goals:3, xg90:0.11, sp:9, head:8, form:4},
     {name:"Willian Pacho",        pos:"CB", h:188, goals:1, xg90:0.06, sp:6, head:8, form:4},
     {name:"Nuno Mendes",          pos:"LB", h:177, goals:2, xg90:0.08, sp:7, head:5, form:4},
     {name:"Achraf Hakimi",        pos:"RB", h:181, goals:3, xg90:0.10, sp:8, head:6, form:5},
   ],
-  // ── GALATASARAY ──
+  // -- GALATASARAY --
   "Galatasaray Istanbul": [
     {name:"Victor Nelsson",       pos:"CB", h:188, goals:2, xg90:0.08, sp:7, head:8, form:4},
-    {name:"Abdülkerim Bardakcı",  pos:"CB", h:189, goals:1, xg90:0.06, sp:6, head:8, form:4},
+    {name:"Abdulkerim Bardakci",  pos:"CB", h:189, goals:1, xg90:0.06, sp:6, head:8, form:4},
     {name:"Patrick van Aanholt",  pos:"LB", h:178, goals:2, xg90:0.08, sp:7, head:5, form:4},
   ],
-  // ── SL BENFICA ──
+  // -- SL BENFICA --
   "SL Benfica": [
-    {name:"António Silva",        pos:"CB", h:188, goals:2, xg90:0.09, sp:8, head:8, form:4},
+    {name:"Antonio Silva",        pos:"CB", h:188, goals:2, xg90:0.09, sp:8, head:8, form:4},
     {name:"Nicolas Otamendi",     pos:"CB", h:181, goals:3, xg90:0.11, sp:9, head:8, form:4},
-    {name:"Álvaro Carreras",      pos:"LB", h:183, goals:2, xg90:0.08, sp:7, head:6, form:4},
+    {name:"Alvaro Carreras",      pos:"LB", h:183, goals:2, xg90:0.08, sp:7, head:6, form:4},
   ],
-  // ── SPORTING CP ──
+  // -- SPORTING CP --
   "Sporting CP": [
-    {name:"Gonçalo Inácio",       pos:"CB", h:189, goals:3, xg90:0.11, sp:9, head:8, form:5},
-    {name:"Ousmane Diomandé",     pos:"CB", h:191, goals:1, xg90:0.06, sp:6, head:9, form:4},
+    {name:"Goncalo Inacio",       pos:"CB", h:189, goals:3, xg90:0.11, sp:9, head:8, form:5},
+    {name:"Ousmane Diomande",     pos:"CB", h:191, goals:1, xg90:0.06, sp:6, head:9, form:4},
   ],
-  // ── FC PORTO ──
+  // -- FC PORTO --
   "FC Porto": [
-    {name:"Nehuén Pérez",         pos:"CB", h:186, goals:2, xg90:0.08, sp:7, head:8, form:4},
+    {name:"Nehuen Perez",         pos:"CB", h:186, goals:2, xg90:0.08, sp:7, head:8, form:4},
     {name:"Zaidu Sanusi",         pos:"LB", h:180, goals:1, xg90:0.06, sp:6, head:6, form:3},
   ],
 };
 
-// ── Calcola difensore più pericoloso da segnare per una squadra
+// ======================================================================
+//  MIDFIELDER_DB - Centrocampisti con piu probabilita di segnare
+//  Fonti: FBref xG/90 . Understat gol . WhoScored set piece . Transfermarkt
+// ======================================================================
+const MIDFIELDER_DB = {
+  "Inter":               [{name:"Hakan Calhanoglu",  pos:"CM",  goals:6, xg90:0.16, sp:9, long:9, form:5},
+                          {name:"Nicolo Barella",    pos:"CM",  goals:4, xg90:0.12, sp:7, long:7, form:5},
+                          {name:"Henrikh Mkhitaryan",pos:"CM",  goals:3, xg90:0.10, sp:7, long:6, form:4}],
+  "Juventus":            [{name:"Adrien Rabiot",     pos:"CM",  goals:5, xg90:0.14, sp:8, long:7, form:4},
+                          {name:"Manuel Locatelli",  pos:"DM",  goals:2, xg90:0.08, sp:6, long:5, form:4},
+                          {name:"Weston McKennie",   pos:"CM",  goals:4, xg90:0.13, sp:7, long:7, form:4}],
+  "SSC Napoli":          [{name:"Stanislav Lobotka", pos:"DM",  goals:2, xg90:0.07, sp:6, long:5, form:4},
+                          {name:"Andre-Frank Zambo", pos:"CM",  goals:3, xg90:0.10, sp:6, long:6, form:4}],
+  "AC Milan":            [{name:"Tijjani Reijnders", pos:"CM",  goals:7, xg90:0.18, sp:8, long:8, form:5},
+                          {name:"Ruben Loftus-Cheek",pos:"CM",  goals:4, xg90:0.13, sp:7, long:7, form:4},
+                          {name:"Ismael Bennacer",   pos:"DM",  goals:2, xg90:0.07, sp:6, long:5, form:3}],
+  "Atalanta BC":         [{name:"Mario Pasalic",     pos:"CM",  goals:6, xg90:0.16, sp:7, long:7, form:5},
+                          {name:"Marten de Roon",    pos:"DM",  goals:2, xg90:0.08, sp:6, long:5, form:4},
+                          {name:"Ederson",            pos:"CM",  goals:3, xg90:0.11, sp:7, long:6, form:5}],
+  "Lazio Rome":          [{name:"Luis Alberto",      pos:"AM",  goals:5, xg90:0.15, sp:8, long:8, form:4},
+                          {name:"Sergej Milinkovic-Savic",pos:"CM",goals:5,xg90:0.14,sp:8,long:8,form:4}],
+  "AS Roma":             [{name:"Bryan Cristante",   pos:"CM",  goals:4, xg90:0.12, sp:8, long:7, form:4},
+                          {name:"Leandro Paredes",   pos:"DM",  goals:2, xg90:0.08, sp:7, long:6, form:3}],
+  "Liverpool FC":        [{name:"Dominik Szoboszlai",pos:"AM",  goals:6, xg90:0.17, sp:8, long:8, form:5},
+                          {name:"Curtis Jones",      pos:"CM",  goals:4, xg90:0.13, sp:7, long:7, form:5},
+                          {name:"Ryan Gravenberch",  pos:"DM",  goals:2, xg90:0.08, sp:6, long:5, form:5}],
+  "Arsenal FC":          [{name:"Martin Odegaard",   pos:"AM",  goals:7, xg90:0.19, sp:9, long:9, form:5},
+                          {name:"Declan Rice",       pos:"CM",  goals:5, xg90:0.14, sp:8, long:7, form:5},
+                          {name:"Thomas Partey",     pos:"DM",  goals:2, xg90:0.07, sp:6, long:5, form:4}],
+  "Chelsea FC":          [{name:"Enzo Fernandez",    pos:"CM",  goals:4, xg90:0.12, sp:7, long:7, form:4},
+                          {name:"Moises Caicedo",    pos:"DM",  goals:2, xg90:0.08, sp:6, long:5, form:4},
+                          {name:"Cole Palmer",       pos:"AM",  goals:14,xg90:0.30, sp:9, long:9, form:5}],
+  "Manchester City":     [{name:"Kevin De Bruyne",   pos:"AM",  goals:5, xg90:0.18, sp:9, long:10,form:5},
+                          {name:"Rodri",             pos:"DM",  goals:3, xg90:0.09, sp:7, long:6, form:4},
+                          {name:"Bernardo Silva",    pos:"CM",  goals:4, xg90:0.13, sp:7, long:7, form:4}],
+  "Newcastle United":    [{name:"Bruno Guimaraes",   pos:"CM",  goals:5, xg90:0.15, sp:8, long:8, form:5},
+                          {name:"Joe Willock",       pos:"CM",  goals:3, xg90:0.10, sp:6, long:6, form:4}],
+  "Tottenham Hotspur":   [{name:"James Maddison",    pos:"AM",  goals:7, xg90:0.19, sp:9, long:8, form:4},
+                          {name:"Yves Bissouma",     pos:"DM",  goals:2, xg90:0.07, sp:5, long:5, form:4}],
+  "Manchester United":   [{name:"Bruno Fernandes",   pos:"AM",  goals:9, xg90:0.23, sp:9, long:9, form:4},
+                          {name:"Casemiro",          pos:"DM",  goals:3, xg90:0.09, sp:7, long:6, form:3}],
+  "FC Barcelona":        [{name:"Pedri",             pos:"CM",  goals:5, xg90:0.15, sp:7, long:8, form:5},
+                          {name:"Gavi",              pos:"CM",  goals:3, xg90:0.11, sp:7, long:7, form:5},
+                          {name:"Frenkie de Jong",   pos:"CM",  goals:3, xg90:0.10, sp:6, long:6, form:4}],
+  "Real Madrid":         [{name:"Jude Bellingham",   pos:"AM",  goals:11,xg90:0.26, sp:9, long:9, form:5},
+                          {name:"Aurelien Tchouameni",pos:"DM", goals:3, xg90:0.09, sp:7, long:6, form:4},
+                          {name:"Federico Valverde", pos:"CM",  goals:5, xg90:0.14, sp:7, long:8, form:5}],
+  "Atletico Madrid":     [{name:"Koke",              pos:"CM",  goals:3, xg90:0.10, sp:7, long:7, form:4},
+                          {name:"Saul Niguez",       pos:"CM",  goals:2, xg90:0.08, sp:6, long:5, form:3},
+                          {name:"Rodrigo De Paul",   pos:"CM",  goals:4, xg90:0.13, sp:7, long:7, form:4}],
+  "Bayern Munich":       [{name:"Joshua Kimmich",    pos:"DM",  goals:4, xg90:0.12, sp:8, long:7, form:4},
+                          {name:"Leon Goretzka",     pos:"CM",  goals:5, xg90:0.14, sp:7, long:7, form:4},
+                          {name:"Jamal Musiala",     pos:"AM",  goals:9, xg90:0.23, sp:7, long:8, form:5}],
+  "Bayer Leverkusen":    [{name:"Granit Xhaka",      pos:"CM",  goals:5, xg90:0.14, sp:8, long:7, form:5},
+                          {name:"Florian Wirtz",     pos:"AM",  goals:10,xg90:0.25, sp:8, long:9, form:5}],
+  "Borussia Dortmund":   [{name:"Julian Brandt",     pos:"AM",  goals:6, xg90:0.17, sp:7, long:8, form:4},
+                          {name:"Emre Can",          pos:"DM",  goals:3, xg90:0.09, sp:7, long:6, form:4}],
+  "Paris Saint-Germain": [{name:"Vitinha",           pos:"CM",  goals:5, xg90:0.15, sp:7, long:7, form:5},
+                          {name:"Warren Zaire-Emery",pos:"CM",  goals:4, xg90:0.13, sp:7, long:7, form:5},
+                          {name:"Fabian Ruiz",       pos:"CM",  goals:4, xg90:0.13, sp:7, long:7, form:4}],
+  "Galatasaray Istanbul":[{name:"Kerem Akturkoglu",  pos:"AM",  goals:6, xg90:0.16, sp:7, long:7, form:4},
+                          {name:"Sergio Oliveira",   pos:"CM",  goals:4, xg90:0.13, sp:8, long:7, form:4}],
+  "SL Benfica":          [{name:"Florentino Luis",   pos:"DM",  goals:2, xg90:0.08, sp:6, long:5, form:4},
+                          {name:"Orkun Kokcu",       pos:"AM",  goals:7, xg90:0.19, sp:8, long:8, form:5}],
+  "Sporting CP":         [{name:"Morten Hjulmand",   pos:"DM",  goals:3, xg90:0.10, sp:7, long:6, form:4},
+                          {name:"Viktor Gyokeres",   pos:"CM",  goals:2, xg90:0.08, sp:5, long:5, form:5}],
+  "FC Porto":            [{name:"Sergio Conceicao Jr",pos:"AM", goals:5, xg90:0.15, sp:7, long:7, form:4}],
+  "Fiorentina":          [{name:"Rolando Mandragora",pos:"CM",  goals:3, xg90:0.10, sp:7, long:6, form:4},
+                          {name:"Sofyan Amrabat",    pos:"DM",  goals:2, xg90:0.07, sp:6, long:5, form:4}],
+  "PSV Eindhoven":       [{name:"Joey Veerman",      pos:"CM",  goals:7, xg90:0.19, sp:8, long:8, form:5},
+                          {name:"Ismael Saibari",    pos:"AM",  goals:5, xg90:0.15, sp:7, long:7, form:4}],
+  "AFC Ajax":            [{name:"Kenneth Taylor",    pos:"CM",  goals:4, xg90:0.12, sp:7, long:6, form:4},
+                          {name:"Branco van den Boomen",pos:"CM",goals:5,xg90:0.15, sp:8, long:7, form:4}],
+};
+
+// -- Calcola difensore piu pericoloso da segnare per una squadra
 // Formula: score = (xg90*40) + (goals*8) + (sp*5) + (head*3) + (form*4) + altezza_bonus
 // Fonti: FBref xG/90, WhoScored set piece, Wikipedia altezza, Understat gol
 function bestDefenderScorer(teamName, xgTeam){
   const defenders = DEFENDER_DB[teamName];
-  const xgBoost = Math.min(parseFloat(xgTeam)||1.2, 3.0)/1.5; // xG alto = più cross/corner = più chance difensore
+  const xgBoost = Math.min(parseFloat(xgTeam)||1.2, 3.0)/1.5; // xG alto = piu cross/corner = piu chance difensore
 
   if(!defenders || defenders.length===0){
     // Fallback generico se squadra non in DB
@@ -793,7 +902,7 @@ function bestDefenderScorer(teamName, xgTeam){
   scored.sort((a,b) => b.score - a.score);
   const best = scored[0];
 
-  // Converti score in probabilità % (max ~35% per difensore elite)
+  // Converti score in probabilita % (max ~35% per difensore elite)
   const pct = Math.round(Math.min(best.score * 0.9, 35));
 
   return {
@@ -804,6 +913,42 @@ function bestDefenderScorer(teamName, xgTeam){
     goals: best.goals,
     sp: best.sp,
     head: best.head,
+  };
+}
+
+function bestMidfielderScorer(teamName, xgTeam){
+  const midfielders = MIDFIELDER_DB[teamName];
+  const xgBoost = Math.min(parseFloat(xgTeam)||1.2, 3.0)/1.5;
+
+  if(!midfielders || midfielders.length===0){
+    const t = td(teamName);
+    return {
+      name: 'Centrocampista ' + teamName,
+      pos: 'CM',
+      pct: Math.round(Math.min((t.atk*0.22 + (parseFloat(xgTeam)||1)*0.18)*100, 40)),
+      goals: 2,
+      sp: 6,
+      long: 6,
+    };
+  }
+
+  const scored = midfielders.map(m => {
+    const score = m.xg90*50 + m.goals*9 + m.sp*4 + m.long*3 + m.form*5;
+    return {...m, score: score * xgBoost};
+  });
+
+  scored.sort((a,b) => b.score - a.score);
+  const best = scored[0];
+
+  const pct = Math.round(Math.min(best.score * 0.75, 42));
+
+  return {
+    name: best.name,
+    pos: best.pos,
+    pct: Math.max(pct, 8),
+    goals: best.goals,
+    sp: best.sp,
+    long: best.long,
   };
 }
 
@@ -828,7 +973,7 @@ function predictMatch(fix){
 }
 
 const UPCOMING=[
-  // ── 🏆 CHAMPIONS LEAGUE ──
+  // -- ? CHAMPIONS LEAGUE --
   {id:"ucl_gal_lfc",home:"Galatasaray Istanbul",away:"Liverpool FC",     kickoff:"2026-03-10T17:45:00Z",league:"ucl"},
   {id:"ucl_new_bar",home:"Newcastle United",    away:"FC Barcelona",     kickoff:"2026-03-10T20:00:00Z",league:"ucl"},
   {id:"ucl_atm_tot",home:"Atletico Madrid",     away:"Tottenham Hotspur",kickoff:"2026-03-10T20:00:00Z",league:"ucl"},
@@ -836,15 +981,15 @@ const UPCOMING=[
   {id:"ucl_lev_ars",home:"Bayer Leverkusen",    away:"Arsenal FC",       kickoff:"2026-03-11T17:45:00Z",league:"ucl"},
   {id:"ucl_rma_mci",home:"Real Madrid",         away:"Manchester City",  kickoff:"2026-03-11T20:00:00Z",league:"ucl"},
   {id:"ucl_psg_cfc",home:"Paris Saint-Germain", away:"Chelsea FC",       kickoff:"2026-03-11T20:00:00Z",league:"ucl"},
-  // ── 🟠 EUROPA LEAGUE ──
+  // -- ? EUROPA LEAGUE --
   {id:"uel_tot_bra",home:"Tottenham Hotspur",   away:"Bayer Leverkusen", kickoff:"2026-03-12T20:00:00Z",league:"uel"},
   {id:"uel_man_por",home:"Manchester United",   away:"FC Porto",         kickoff:"2026-03-12T20:00:00Z",league:"uel"},
   {id:"uel_laz_aja",home:"Lazio Rome",          away:"Ajax",             kickoff:"2026-03-12T17:45:00Z",league:"uel"},
   {id:"uel_rom_fen",home:"AS Roma",             away:"Fenerbahce",       kickoff:"2026-03-13T17:45:00Z",league:"uel"},
-  // ── 🟢 CONFERENCE LEAGUE ──
+  // -- ? CONFERENCE LEAGUE --
   {id:"uecl_fio_bet",home:"ACF Fiorentina",     away:"Real Betis Seville",kickoff:"2026-03-12T18:45:00Z",league:"uecl"},
   {id:"uecl_che_gir",home:"Chelsea FC",         away:"Girona FC",        kickoff:"2026-03-12T21:00:00Z",league:"uecl"},
-  // ── 🇮🇹 SERIE A ──
+  // -- ?? SERIE A --
   {id:"sa_tor_par",home:"Torino FC",            away:"Parma Calcio",     kickoff:"2026-03-13T19:45:00Z",league:"serie_a"},
   {id:"sa_int_ata",home:"Inter",                away:"Atalanta BC",      kickoff:"2026-03-14T14:00:00Z",league:"serie_a"},
   {id:"sa_nap_lec",home:"SSC Napoli",           away:"US Lecce",         kickoff:"2026-03-14T17:00:00Z",league:"serie_a"},
@@ -854,7 +999,7 @@ const UPCOMING=[
   {id:"sa_com_rom",home:"Como 1907",            away:"AS Roma",          kickoff:"2026-03-15T17:00:00Z",league:"serie_a"},
   {id:"sa_laz_mil",home:"Lazio Rome",           away:"AC Milan",         kickoff:"2026-03-15T19:45:00Z",league:"serie_a"},
   {id:"sa_cre_fio",home:"US Cremonese",         away:"ACF Fiorentina",   kickoff:"2026-03-16T19:45:00Z",league:"serie_a"},
-  // ── ENG PREMIER LEAGUE ──
+  // -- ENG PREMIER LEAGUE --
   {id:"pl_bur_bou",home:"Burnley FC",           away:"AFC Bournemouth",  kickoff:"2026-03-14T15:00:00Z",league:"epl"},
   {id:"pl_sun_bri",home:"Sunderland AFC",       away:"Brighton & Hove Albion",kickoff:"2026-03-14T15:00:00Z",league:"epl"},
   {id:"pl_ars_eve",home:"Arsenal FC",           away:"Everton FC",       kickoff:"2026-03-14T17:30:00Z",league:"epl"},
@@ -862,23 +1007,23 @@ const UPCOMING=[
   {id:"pl_whu_mci",home:"West Ham United",      away:"Manchester City",  kickoff:"2026-03-14T20:00:00Z",league:"epl"},
   {id:"pl_lfc_tot",home:"Liverpool FC",         away:"Tottenham Hotspur",kickoff:"2026-03-15T16:30:00Z",league:"epl"},
   {id:"pl_mun_avl",home:"Manchester United",    away:"Aston Villa",      kickoff:"2026-03-15T14:00:00Z",league:"epl"},
-  // ── 🇩🇪 BUNDESLIGA ──
+  // -- ?? BUNDESLIGA --
   {id:"bl_lev_bmu",home:"Bayer Leverkusen",     away:"Bayern Munich",    kickoff:"2026-03-14T14:30:00Z",league:"bundesliga"},
   {id:"bl_bvb_fca",home:"Borussia Dortmund",    away:"FC Augsburg",      kickoff:"2026-03-14T14:30:00Z",league:"bundesliga"},
   {id:"bl_svw_m05",home:"Werder Bremen",        away:"FSV Mainz",        kickoff:"2026-03-15T14:30:00Z",league:"bundesliga"},
-  // ── 🇪🇸 LA LIGA ──
+  // -- ?? LA LIGA --
   {id:"ll_atm_get",home:"Atletico Madrid",      away:"Getafe CF",        kickoff:"2026-03-14T15:15:00Z",league:"la_liga"},
   {id:"ll_rma_elc",home:"Real Madrid",          away:"Elche CF",         kickoff:"2026-03-14T20:00:00Z",league:"la_liga"},
   {id:"ll_bar_sev",home:"FC Barcelona",         away:"Sevilla FC",       kickoff:"2026-03-15T15:15:00Z",league:"la_liga"},
-  // ── 🇳🇱 EREDIVISIE ──
+  // -- ?? EREDIVISIE --
   {id:"ere_psv_aja",home:"PSV Eindhoven",       away:"Ajax",             kickoff:"2026-03-15T17:45:00Z",league:"eredivisie"},
   {id:"ere_fey_utb",home:"Feyenoord",           away:"Utrecht",          kickoff:"2026-03-14T19:00:00Z",league:"eredivisie"},
   {id:"ere_alf_gro",home:"AZ Alkmaar",          away:"Groningen",        kickoff:"2026-03-14T16:30:00Z",league:"eredivisie"},
-  // ── 🇵🇹 PRIMEIRA LIGA ──
+  // -- ?? PRIMEIRA LIGA --
   {id:"pl_por_ben",home:"FC Porto",             away:"SL Benfica",       kickoff:"2026-03-15T20:30:00Z",league:"primeira"},
   {id:"pl_spo_bra",home:"Sporting CP",          away:"SC Braga",         kickoff:"2026-03-14T20:15:00Z",league:"primeira"},
   {id:"pl_vit_gui",home:"Vitoria Guimaraes",    away:"Gil Vicente",      kickoff:"2026-03-14T17:30:00Z",league:"primeira"},
-  // ── 🇹🇷 SÜPER LIG ──
+  // -- ?? S?PER LIG --
   {id:"sl_gal_fen",home:"Galatasaray Istanbul", away:"Fenerbahce",       kickoff:"2026-03-16T18:00:00Z",league:"super_lig"},
   {id:"sl_bes_tra",home:"Besiktas",             away:"Trabzonspor",      kickoff:"2026-03-14T17:00:00Z",league:"super_lig"},
   {id:"sl_ant_kas",home:"Antalyaspor",          away:"Kasimpasa",        kickoff:"2026-03-15T14:00:00Z",league:"super_lig"},
@@ -912,13 +1057,132 @@ function guessLeague(n){
   if(l.includes('conference'))return'uecl';
   if(l.includes('eredivisie'))return'eredivisie';
   if(l.includes('primeira')||l.includes('liga portugal'))return'primeira';
-  if(l.includes('super lig')||l.includes('süper'))return'super_lig';
+  if(l.includes('super lig')||l.includes('super'))return'super_lig';
   return'other';
 }
 
 let currentTab='future',currentLeague='all',liveHT=null,liveFT=null,hasLive=false;
 const prevScores = {};  // {matchId: {h: N, a: N}}
 let golTimer = null;
+
+// ── STORICO PREVISIONI (ultimi 10 risultati salvati in sessionStorage) ────────
+const HISTORY_KEY = 'xgradar_history';
+function saveHistory(fix, pred){
+  try{
+    const h = JSON.parse(sessionStorage.getItem(HISTORY_KEY)||'[]');
+    const entry = {
+      ts: Date.now(),
+      home: fix.home, away: fix.away,
+      league: fix.league,
+      hxg: pred.hxg, axg: pred.axg,
+      over25: pred.over25, btts: pred.btts,
+      winner: pred.winner, conf: pred.conf,
+      goals: pred.goals
+    };
+    h.unshift(entry);
+    sessionStorage.setItem(HISTORY_KEY, JSON.stringify(h.slice(0,15)));
+  }catch(e){}
+}
+function getHistory(){ try{ return JSON.parse(sessionStorage.getItem(HISTORY_KEY)||'[]'); }catch(e){ return []; } }
+function clearHistory(){ try{ sessionStorage.removeItem(HISTORY_KEY); }catch(e){} renderHistory(); }
+function renderHistory(){
+  const h = getHistory();
+  const el = document.getElementById('content');
+  if(!h.length){
+    el.innerHTML='<div style="text-align:center;padding:50px 20px;color:#475569"><div style="font-size:36px;margin-bottom:10px">📋</div><div style="font-size:14px;font-weight:700">Nessuna previsione salvata</div><div style="font-size:11px;margin-top:6px">Le previsioni vengono salvate automaticamente quando visiti il tab Prossime</div></div>';
+    return;
+  }
+  const cards = h.map(e=>{
+    const lg = LEAGUES[e.league]||{flag:'?',name:e.league,color:'#7c3aed'};
+    const d = new Date(e.ts);
+    const timeAgo = Math.round((Date.now()-e.ts)/60000);
+    const timeStr = timeAgo<60 ? timeAgo+'min fa' : Math.round(timeAgo/60)+'h fa';
+    const wColor = e.conf>=60?'#4ade80':e.conf>=45?'#facc15':'#94a3b8';
+    return '<div style="background:linear-gradient(135deg,#0f172a,#111827);border:1px solid #1e293b;border-left:4px solid '+lg.color+';border-radius:12px;padding:10px 12px;margin-bottom:10px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'
+      +'<div style="display:flex;align-items:center;gap:5px">'
+      +'<span style="font-size:10px">'+lg.flag+'</span>'
+      +'<span style="font-size:8px;color:#475569;font-weight:700">'+lg.name+'</span>'
+      +'<span style="font-size:8px;color:#334155">'+timeStr+'</span>'
+      +'</div>'
+      +'<span style="font-family:Oswald,sans-serif;font-size:13px;font-weight:900;color:'+wColor+'">'+e.conf+'% conf.</span>'
+      +'</div>'
+      +'<div style="font-family:Oswald,sans-serif;font-size:14px;font-weight:900;color:#f1f5f9;margin-bottom:6px">'+e.home+' vs '+e.away+'</div>'
+      +'<div style="display:flex;gap:5px;flex-wrap:wrap">'
+      +'<span style="font-size:8px;background:#1e1b4b;color:#a78bfa;padding:1px 6px;border-radius:20px;border:1px solid #7c3aed33">Vince: '+e.winner+'</span>'
+      +'<span style="font-size:8px;background:#1e293b;color:#94a3b8;padding:1px 6px;border-radius:20px">xG '+e.hxg+'-'+e.axg+'</span>'
+      +'<span style="font-size:8px;background:'+(e.over25>=60?'#052e16':'#1e293b')+';color:'+(e.over25>=60?'#4ade80':'#94a3b8')+';padding:1px 6px;border-radius:20px">O2.5: '+e.over25+'%</span>'
+      +'<span style="font-size:8px;background:'+(e.btts>=55?'#422006':'#1e293b')+';color:'+(e.btts>=55?'#facc15':'#94a3b8')+';padding:1px 6px;border-radius:20px">GG: '+e.btts+'%</span>'
+      +'</div>'
+      +'</div>';
+  }).join('');
+  el.innerHTML='<div class="section-header">'
+    +'<span style="font-size:20px">📋</span>'
+    +'<div>'
+    +'<div style="font-family:Oswald,sans-serif;font-size:14px;font-weight:700;color:#94a3b8">STORICO PREVISIONI</div>'
+    +'<div style="font-size:10px;color:#475569">Ultime '+h.length+' sessione corrente</div>'
+    +'</div>'
+    +'<button onclick="clearHistory()" style="background:#1e293b;border:1px solid #334155;color:#94a3b8;border-radius:8px;padding:3px 8px;font-size:9px;font-weight:700;cursor:pointer">RESET</button>'
+    +'</div>'+cards;
+}
+
+// ── TEAM LOGO DB: CDN api-football (formato PNG ufficiale) ──────────────────
+const LOGO_DB = {
+  // Serie A
+  "Inter":              "https://media.api-sports.io/football/teams/505.png",
+  "Juventus":           "https://media.api-sports.io/football/teams/496.png",
+  "AC Milan":           "https://media.api-sports.io/football/teams/489.png",
+  "SSC Napoli":         "https://media.api-sports.io/football/teams/492.png",
+  "Atalanta BC":        "https://media.api-sports.io/football/teams/499.png",
+  "AS Roma":            "https://media.api-sports.io/football/teams/497.png",
+  "Lazio Rome":         "https://media.api-sports.io/football/teams/487.png",
+  "Fiorentina":         "https://media.api-sports.io/football/teams/502.png",
+  // Premier League
+  "Arsenal FC":         "https://media.api-sports.io/football/teams/42.png",
+  "Chelsea FC":         "https://media.api-sports.io/football/teams/49.png",
+  "Liverpool FC":       "https://media.api-sports.io/football/teams/40.png",
+  "Manchester City":    "https://media.api-sports.io/football/teams/50.png",
+  "Manchester United":  "https://media.api-sports.io/football/teams/33.png",
+  "Newcastle United":   "https://media.api-sports.io/football/teams/34.png",
+  "Tottenham Hotspur":  "https://media.api-sports.io/football/teams/47.png",
+  "Everton FC":         "https://media.api-sports.io/football/teams/45.png",
+  "Aston Villa":        "https://media.api-sports.io/football/teams/66.png",
+  // La Liga
+  "FC Barcelona":       "https://media.api-sports.io/football/teams/529.png",
+  "Real Madrid":        "https://media.api-sports.io/football/teams/541.png",
+  "Atletico Madrid":    "https://media.api-sports.io/football/teams/530.png",
+  "Sevilla FC":         "https://media.api-sports.io/football/teams/536.png",
+  // Bundesliga
+  "Bayern Munich":      "https://media.api-sports.io/football/teams/157.png",
+  "Borussia Dortmund":  "https://media.api-sports.io/football/teams/165.png",
+  "Bayer Leverkusen":   "https://media.api-sports.io/football/teams/168.png",
+  "RB Leipzig":         "https://media.api-sports.io/football/teams/173.png",
+  // Ligue 1
+  "Paris Saint-Germain":"https://media.api-sports.io/football/teams/85.png",
+  "Olympique Marseille":"https://media.api-sports.io/football/teams/81.png",
+  "AS Monaco":          "https://media.api-sports.io/football/teams/91.png",
+  // UCL / Others
+  "Galatasaray Istanbul":"https://media.api-sports.io/football/teams/213.png",
+  "Fenerbahce":         "https://media.api-sports.io/football/teams/210.png",
+  "Besiktas":           "https://media.api-sports.io/football/teams/611.png",
+  "PSV Eindhoven":      "https://media.api-sports.io/football/teams/384.png",
+  "AFC Ajax":           "https://media.api-sports.io/football/teams/194.png",
+  "Feyenoord":          "https://media.api-sports.io/football/teams/197.png",
+  "AZ Alkmaar":         "https://media.api-sports.io/football/teams/384.png",
+  "SL Benfica":         "https://media.api-sports.io/football/teams/211.png",
+  "Sporting CP":        "https://media.api-sports.io/football/teams/228.png",
+  "FC Porto":           "https://media.api-sports.io/football/teams/212.png",
+  "SC Braga":           "https://media.api-sports.io/football/teams/217.png",
+};
+function getLogo(name){ return LOGO_DB[name]||null; }
+function logoImg(name, size){
+  const url=getLogo(name);
+  if(!url) return '<div style="width:'+size+'px;height:'+size+'px;border-radius:50%;background:#1e293b;display:flex;align-items:center;justify-content:center;font-size:'+(size*0.35)+'px;font-weight:900;color:#475569;flex-shrink:0">'+name.slice(0,2).toUpperCase()+'</div>';
+  return '<img src="'+url+'" style="width:'+size+'px;height:'+size+'px;object-fit:contain;flex-shrink:0" onerror="this.remove()" loading="lazy">';
+}
+
+// ── STORICO PREVISIONI (ultimi 10 risultati salvati in sessionStorage) ────────
+
 
 function spawnParticles(){
   const c = document.getElementById('golParticles');
@@ -937,27 +1201,67 @@ function spawnParticles(){
   }
 }
 
+function playGolSound(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    // Crowd roar simulation with oscillators
+    const notes=[523,659,784,1047,784,659,523];
+    notes.forEach((freq,i)=>{
+      const osc=ctx.createOscillator();
+      const gain=ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value=freq;
+      osc.type='sine';
+      gain.gain.setValueAtTime(0,ctx.currentTime+i*0.12);
+      gain.gain.linearRampToValueAtTime(0.3,ctx.currentTime+i*0.12+0.05);
+      gain.gain.linearRampToValueAtTime(0,ctx.currentTime+i*0.12+0.25);
+      osc.start(ctx.currentTime+i*0.12);
+      osc.stop(ctx.currentTime+i*0.12+0.3);
+    });
+    // Bass boom
+    const bass=ctx.createOscillator();
+    const bassGain=ctx.createGain();
+    bass.connect(bassGain); bassGain.connect(ctx.destination);
+    bass.frequency.value=80; bass.type='sine';
+    bassGain.gain.setValueAtTime(0.6,ctx.currentTime);
+    bassGain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.8);
+    bass.start(ctx.currentTime); bass.stop(ctx.currentTime+0.8);
+  }catch(e){}
+}
+
+function vibrateGol(){
+  try{
+    if(navigator.vibrate){
+      navigator.vibrate([200,50,200,50,400,100,600]);
+    }
+  }catch(e){}
+}
+
 function showGol(teamName, hScore, aScore){
-  document.getElementById('golTeam').textContent = teamName.toUpperCase();
-  document.getElementById('golScore').textContent = hScore + ' – ' + aScore;
+  // Sound + vibration
+  playGolSound();
+  vibrateGol();
+  // Rebuild overlay to reset CSS animations
   const o = document.getElementById('golOverlay');
-  o.innerHTML = o.innerHTML; // reset animations by re-triggering reflow
-  const bg = document.createElement('div'); bg.className='gol-bg'; 
-  const parts = document.createElement('div'); parts.className='gol-particles'; parts.id='golParticles';
-  const content = `<div style="position:relative;text-align:center;z-index:2">
-    <div class="gol-text">GOL!</div>
-    <div class="gol-team" id="golTeam">${teamName.toUpperCase()}</div>
-    <div class="gol-score" id="golScore">${hScore} – ${aScore}</div>
-  </div>`;
-  o.innerHTML = '';
-  o.appendChild(bg); o.appendChild(parts);
-  o.insertAdjacentHTML('beforeend', content);
+  o.innerHTML='<div class="gol-bg" id="golBg"></div>'
+    +'<div class="gol-ring"></div>'
+    +'<div class="gol-ring gol-ring2"></div>'
+    +'<div class="gol-particles" id="golParticles"></div>'
+    +'<div style="position:relative;text-align:center;z-index:2">'
+    +'<span class="gol-emoji">&#9917;</span>'
+    +'<div class="gol-text">GOL!</div>'
+    +'<div class="gol-team">'+teamName.toUpperCase()+'</div>'
+    +'<div class="gol-score">'+hScore+' - '+aScore+'</div>'
+    +'</div>';
   spawnParticles();
   o.classList.remove('hide'); o.classList.add('show');
+  // Flash background
+  document.body.style.animation='flashbg 0.5s 3';
+  setTimeout(()=>{document.body.style.animation='';},1500);
   if(golTimer) clearTimeout(golTimer);
   golTimer = setTimeout(()=>{
     o.classList.add('hide');
-    setTimeout(()=>o.classList.remove('show','hide'),700);
+    setTimeout(()=>o.classList.remove('show','hide'),800);
   }, 10000);
 }
 
@@ -974,7 +1278,7 @@ function checkGoals(matches){
 
 async function fetchLive(){
   document.getElementById('statusDot').style.background='#38bdf8';
-  document.getElementById('statusText').textContent='⏳ Connessione api-sports.io…';
+  document.getElementById('statusText').textContent=' Connessione api-sports.io...';
   const ht=[],ft=[];
   try{
     const r=await fetch(WORKER,{mode:'cors',credentials:'omit'});
@@ -1014,7 +1318,7 @@ async function fetchLive(){
       if(min<=44)ht.push(m);else ft.push(m);
     }
   }catch(e){
-    document.getElementById('statusText').textContent='⚠️ '+e.message.slice(0,50);
+    document.getElementById('statusText').textContent='(!)️ '+e.message.slice(0,50);
   }
   liveHT=ht.length?ht:null;
   liveFT=ft.length?ft:null;
@@ -1023,14 +1327,14 @@ async function fetchLive(){
   checkGoals([...ht,...ft]);
   if(hasLive){
     document.getElementById('statusDot').style.background='#4ade80';
-    document.getElementById('statusText').textContent=`✅ ${ht.length+ft.length} partite live · api-sports.io`;
+    document.getElementById('statusText').textContent=`[OK] ${ht.length+ft.length} partite live   api-sports.io`;
     document.getElementById('modeBadge').textContent='LIVE';
     document.getElementById('modeBadge').className='badge live';
     if(ht.length&&currentTab==='future'){setTabId('ht');}
     else if(ft.length&&!ht.length&&currentTab==='future'){setTabId('ft');}
   }else{
     document.getElementById('statusDot').style.background='#475569';
-    document.getElementById('statusText').textContent='🔎 Nessuna partita live · prossimo check 45s';
+    document.getElementById('statusText').textContent='🔎 Nessuna partita live   prossimo check 10s';
     document.getElementById('modeBadge').textContent='DEMO';
     document.getElementById('modeBadge').className='badge';
     setTabId('future');
@@ -1040,7 +1344,7 @@ async function fetchLive(){
 
 function setTabId(id){
   currentTab=id;
-  const ids=['ht','ft','future'];
+  const ids=['ht','ft','future','over25','multipla'];
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',ids[i]===id));
 }
 function setTab(tab,btn){
@@ -1077,31 +1381,40 @@ function matchCard(m,isHT){
   const pc=prob>=75?'#4ade80':prob>=50?'#facc15':prob>=30?'#94a3b8':'#f87171';
   const hasS=(m.hSh||0)+(m.aSh||0)+(m.hCorn||0)+(m.aCorn||0)>0;
 
+  const foulsChip='<div class="stat-chip"><span class="stat-icon">FAL</span><div><div class="stat-vals">'+(m.hFouls||0)+' - '+(m.aFouls||0)+'</div><div class="stat-lbl">FALLI</div></div></div>';
+  const penChip='<div class="stat-chip pen"><span class="stat-icon">RIG</span><div><div class="stat-vals" style="color:#c084fc">'+(m.hPen||0)+' - '+(m.aPen||0)+'</div><div class="stat-lbl">RIGORI</div></div></div>';
+  const redChip='<div class="stat-chip red"><span class="stat-icon">ESP</span><div><div class="stat-vals" style="color:#fca5a5">'+(m.hRed||0)+' - '+(m.aRed||0)+'</div><div class="stat-lbl">ESPULSIONI</div></div></div>';
+  const probBadge=prob>=70?'<span style="font-size:9px;font-weight:700;color:#4ade80">PERICOLO GOL</span>':prob>=50?'<span style="font-size:9px;font-weight:700;color:#facc15">ATTENZIONE</span>':'';
   return `
 <div class="card ${cc}">
   <div class="card-header">
     <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
       <span style="font-size:14px">${lg.flag}</span>
       <span class="league-badge">${lg.name}</span>
-      <span class="live-badge"><span class="live-dot"></span>${isHT?'1°T':'2°T'}</span>
-      ${prob>=70?`<span style="font-size:9px;font-weight:700;color:#4ade80">⚡ PERICOLO GOL</span>`:''}
-      ${prob>=50&&prob<70?`<span style="font-size:9px;font-weight:700;color:#facc15">🟡 ATTENZIONE</span>`:''}
+      <span class="live-badge"><span class="live-dot"></span>${isHT?'1degT':'2degT'}</span>
+      ${probBadge}
     </div>
     <span style="font-family:'Oswald',sans-serif;font-size:30px;font-weight:900;color:${pc};text-shadow:0 0 14px ${pc}88">${Math.round(prob)}%</span>
   </div>
   <div class="card-body">
     <div class="teams">
-      <div class="team-block">
+      <div class="team-block" style="display:flex;align-items:center;gap:6px">
+        ${logoImg(m.home,28)}
+        <div>
         <div class="team-name">${m.home}</div>
-        <div class="team-sub">#${hT.rank} · Forma ${hT.form}/15 ${hT.form>=12?'🔥':''}</div>
+        <div class="team-sub">#${hT.rank}   Forma ${hT.form}/15 ${hT.form>=12?'🔥':''}</div>
+        </div>
       </div>
       <div class="score-center">
         <div class="score">${m.hS}:${m.aS}</div>
         <div class="min-badge"><span class="min-dot"></span>${m.min}'</div>
       </div>
-      <div class="team-block" style="text-align:right">
+      <div class="team-block" style="text-align:right;display:flex;align-items:center;gap:6px;justify-content:flex-end">
+        <div>
         <div class="team-name">${m.away}</div>
-        <div class="team-sub">${aT.form>=12?'🔥':''} Forma ${aT.form}/15 · #${aT.rank}</div>
+        <div class="team-sub">${aT.form>=12?'🔥':''} Forma ${aT.form}/15   #${aT.rank}</div>
+        </div>
+        ${logoImg(m.away,28)}
       </div>
     </div>
 
@@ -1128,14 +1441,16 @@ function matchCard(m,isHT){
       </div>
     </div>
 
+    ${buildXgChartSVG(m,xg,lg.color)}
+
     ${hasS?`<div class="stats-grid">
-      <div class="stat-chip"><span class="stat-icon">🎯</span><div><div class="stat-vals">${m.hSh||0} – ${m.aSh||0}</div><div class="stat-lbl">TIRI</div></div></div>
-      <div class="stat-chip"><span class="stat-icon">🥅</span><div><div class="stat-vals">${m.hSOT||0} – ${m.aSOT||0}</div><div class="stat-lbl">IN PORTA</div></div></div>
-      <div class="stat-chip"><span class="stat-icon">🚩</span><div><div class="stat-vals">${m.hCorn||0} – ${m.aCorn||0}</div><div class="stat-lbl">CORNER</div></div></div>
-      <div class="stat-chip"><span class="stat-icon">⚡</span><div><div class="stat-vals">${m.hDangAtt||0} – ${m.aDangAtt||0}</div><div class="stat-lbl">ATT. PERICOLOSI</div></div></div>
-      ${(m.hFouls||0)+(m.aFouls||0)>0?`<div class="stat-chip"><span class="stat-icon">🟨</span><div><div class="stat-vals">${m.hFouls||0} – ${m.aFouls||0}</div><div class="stat-lbl">FALLI</div></div></div>`:''}
-      ${(m.hPen||0)+(m.aPen||0)>0?`<div class="stat-chip pen"><span class="stat-icon">⚪</span><div><div class="stat-vals" style="color:#c084fc">${m.hPen||0} – ${m.aPen||0}</div><div class="stat-lbl">RIGORI</div></div></div>`:''}
-      ${(m.hRed||0)+(m.aRed||0)>0?`<div class="stat-chip red"><span class="stat-icon">🟥</span><div><div class="stat-vals" style="color:#fca5a5">${m.hRed||0} – ${m.aRed||0}</div><div class="stat-lbl">ESPULSIONI</div></div></div>`:''}
+      <div class="stat-chip"><span class="stat-icon">🎯</span><div><div class="stat-vals">${m.hSh||0} &ndash; ${m.aSh||0}</div><div class="stat-lbl">TIRI</div></div></div>
+      <div class="stat-chip"><span class="stat-icon">🥅</span><div><div class="stat-vals">${m.hSOT||0} &ndash; ${m.aSOT||0}</div><div class="stat-lbl">IN PORTA</div></div></div>
+      <div class="stat-chip"><span class="stat-icon">🚩</span><div><div class="stat-vals">${m.hCorn||0} &ndash; ${m.aCorn||0}</div><div class="stat-lbl">CORNER</div></div></div>
+      <div class="stat-chip"><span class="stat-icon">FLASH</span><div><div class="stat-vals">${m.hDangAtt||0} &ndash; ${m.aDangAtt||0}</div><div class="stat-lbl">ATT. PERICOLOSI</div></div></div>
+      ${(m.hFouls||0)+(m.aFouls||0)>0?foulsChip:''}
+      ${(m.hPen||0)+(m.aPen||0)>0?penChip:''}
+      ${(m.hRed||0)+(m.aRed||0)>0?redChip:''}
     </div>`:''}
 
     <div class="scorer-section">
@@ -1161,7 +1476,7 @@ function matchCard(m,isHT){
         </div>
       </div>
     </div>
-    <div class="source-tag">📊 XG FUSION 51 FONTI — StatsBomb·Opta·Understat·FBref·WhoScored·SFStats·Sofascore·Fotmob·Overlyzer·Wyscout·ScoreTrend·Flashscore·Diretta.it·bet365·Snai·Betfair·BetPractice·1x2Stats·Transfermarkt·CIES·StatisticheCalcio·Livescore·xScores·Soccerway·OptaAnalyst·The Athletic·FootyStats·LegaSerieA·UEFA·SkySport·Calcio.com·365Scores·StatsPerform·StatsHub·Scoreroom·ProbBettingHub·PremierLeague.com·LaLiga.com·FCStats·LiveSports·GoalStatistics·BetExplorer·GeniusSports·Dixon-Coles·Maher</div>
+    <div class="source-tag">📊 XG FUSION 51 FONTI &mdash; StatsBomb Opta Understat FBref WhoScored SFStats Sofascore Fotmob Overlyzer Wyscout ScoreTrend Flashscore Diretta.it bet365 Snai Betfair BetPractice 1x2Stats Transfermarkt CIES StatisticheCalcio Livescore xScores Soccerway OptaAnalyst The Athletic FootyStats LegaSerieA UEFA SkySport Calcio.com 365Scores StatsPerform StatsHub Scoreroom ProbBettingHub PremierLeague.com LaLiga.com FCStats LiveSports GoalStatistics BetExplorer GeniusSports Dixon-Coles Maher</div>
   </div>
 </div>`;
 }
@@ -1175,39 +1490,49 @@ function futureCard(fix){
   const timeStr=ko.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
   const hT=td(fix.home),aT=td(fix.away);
   const cc=pred.conf>=60?'#4ade80':pred.conf>=45?'#facc15':'#94a3b8';
-  // Difensore più pericoloso — dati reali da DEFENDER_DB (Wikipedia/FBref/WhoScored)
+  // Difensore piu pericoloso - dati reali da DEFENDER_DB (Wikipedia/FBref/WhoScored)
   const hDef=bestDefenderScorer(fix.home, pred.hxg);
   const aDef=bestDefenderScorer(fix.away, pred.axg);
   const topDef=hDef.pct>=aDef.pct
     ?{...hDef, squad:fix.home, color:lg.color}
     :{...aDef, squad:fix.away, color:'#38bdf8'};
-  const posLabel={'CB':'Difensore Centrale','LB':'Terzino Sinistro','RB':'Terzino Destro','WB':'Wingback'}[topDef.pos]||topDef.pos;
-  const headStars='⭐'.repeat(Math.round(topDef.head/2));
-  const spStars='⭐'.repeat(Math.round(topDef.sp/2));
+  const hBadge=h>=0&&h<24?'<span style="font-size:9px;font-weight:800;background:#422006;color:#fb923c;padding:1px 7px;border-radius:20px;border:1px solid #fb923c44">'+h+'h</span>':'';
+  const posLabel={'CB':'Centrale','LB':'Terzino Sx','RB':'Terzino Dx','WB':'Wingback'}[topDef.pos]||topDef.pos;
+  const headStars='*'.repeat(Math.round((topDef.head||5)/2));
+  const spStars='*'.repeat(Math.round(topDef.sp/2));
+  const hMid=bestMidfielderScorer(fix.home, pred.hxg);
+  const aMid=bestMidfielderScorer(fix.away, pred.axg);
+  const topMid=hMid.pct>=aMid.pct
+    ?{...hMid, squad:fix.home, color:lg.color}
+    :{...aMid, squad:fix.away, color:'#38bdf8'};
+  const midPosLabel={'AM':'Trequartista','CM':'Centrocampista','DM':'Mediano'}[topMid.pos]||topMid.pos;
+  const midSpStars='*'.repeat(Math.round(topMid.sp/2));
   return `
 <div class="card future-card" style="border-left-color:${lg.color}">
   <div class="card-header">
     <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
       <span>${lg.flag}</span>
       <span class="league-badge">${lg.name}</span>
-      <span style="font-size:13px;font-weight:800;font-family:'Oswald',sans-serif;background:#0a0e1a;color:#e2e8f0;padding:3px 10px;border-radius:20px;border:1px solid #334155;letter-spacing:.5px">📅 ${dateStr} &nbsp;⏰ ${timeStr}</span>
-      ${h>=0&&h<24?`<span style="font-size:9px;font-weight:800;background:#422006;color:#fb923c;padding:1px 7px;border-radius:20px;border:1px solid #fb923c44">🔥 ${h}h</span>`:''}
+      <span style="font-size:13px;font-weight:800;font-family:'Oswald',sans-serif;background:#0a0e1a;color:#e2e8f0;padding:3px 10px;border-radius:20px;border:1px solid #334155;letter-spacing:.5px">📅 ${dateStr} &nbsp; ${timeStr}</span>
+      ${hBadge}
     </div>
     <span style="font-size:11px;font-weight:700;color:${cc}">🎯 ${pred.conf}%</span>
   </div>
   <div class="card-body">
     <div class="teams" style="margin-bottom:10px">
       <div>
-        <div class="team-name" style="color:${pred.winner===fix.home?lg.color:'#f1f5f9'}">${fix.home} ${pred.winner===fix.home?'🏆':''}</div>
-        <div class="team-sub">#${hT.rank} · Forma ${hT.form}/15</div>
+        <div style="display:flex;align-items:center;gap:6px">${logoImg(fix.home,26)}<div><div class="team-name" style="color:${pred.winner===fix.home?lg.color:'#f1f5f9'}">${fix.home} ${pred.winner===fix.home?'🏆':''}</div>
+        <div class="team-sub">#${hT.rank}   Forma ${hT.form}/15</div></div></div>
       </div>
       <div style="text-align:center;flex-shrink:0">
         <div style="font-size:10px;font-weight:900;color:#475569;margin-bottom:4px">VS</div>
         <div class="winner-badge">${pred.winner}</div>
       </div>
       <div style="text-align:right">
-        <div class="team-name" style="color:${pred.winner===fix.away?'#38bdf8':'#f1f5f9'}">${pred.winner===fix.away?'🏆':''} ${fix.away}</div>
-        <div class="team-sub">#${aT.rank} · Forma ${aT.form}/15</div>
+        <div style="display:flex;align-items:center;gap:6px;justify-content:flex-end">
+        <div style="text-align:right"><div class="team-name" style="color:${pred.winner===fix.away?'#38bdf8':'#f1f5f9'}">${pred.winner===fix.away?'🏆':''} ${fix.away}</div>
+        <div class="team-sub">#${aT.rank}   Forma ${aT.form}/15</div></div>
+        ${logoImg(fix.away,26)}</div>
       </div>
     </div>
     <div class="prob-bar-wrap">
@@ -1230,30 +1555,290 @@ function futureCard(fix){
       <div class="odd-box"><div class="odd-val" style="color:${pred.btts>=55?'#facc15':'#475569'}">${pred.btts}%</div><div class="odd-label">GG</div></div>
     </div>
 
-    <div style="background:linear-gradient(135deg,#0f172a,#1a1040);border:1px solid #2e1065;border-radius:12px;padding:10px 13px;margin-top:10px">
-      <div style="font-size:8px;font-weight:800;color:#a78bfa;letter-spacing:2px;margin-bottom:8px">🛡️ DIFENSORE PIÙ PERICOLOSO — CALCI PIAZZATI</div>
-      <div style="display:flex;align-items:center;gap:10px">
-        <div style="background:${topDef.color}22;border:1px solid ${topDef.color}44;border-radius:10px;padding:6px 10px;text-align:center;min-width:52px;flex-shrink:0">
-          <div style="font-family:'Oswald',sans-serif;font-size:22px;font-weight:900;color:${topDef.color};line-height:1">${topDef.pct}%</div>
-          <div style="font-size:8px;color:#475569;margin-top:2px">PROB. GOL</div>
-        </div>
-        <div style="flex:1;min-width:0">
-          <div style="font-family:'Oswald',sans-serif;font-size:15px;font-weight:900;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${topDef.name}</div>
-          <div style="font-size:9px;color:${topDef.color};font-weight:700;margin-top:1px">${topDef.squad} · ${posLabel} · ${topDef.h} cm</div>
-          <div style="display:flex;gap:8px;margin-top:5px;flex-wrap:wrap">
-            <span style="font-size:9px;background:#1e293b;color:#94a3b8;padding:2px 7px;border-radius:20px">⚽ ${topDef.goals} gol stagione</span>
-            <span style="font-size:9px;background:#1e293b;color:#94a3b8;padding:2px 7px;border-radius:20px">✈️ Testa ${headStars}</span>
-            <span style="font-size:9px;background:#1e293b;color:#94a3b8;padding:2px 7px;border-radius:20px">📐 Set piece ${spStars}</span>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px">
+
+      <!-- DIFENSORE -->
+      <div style="background:linear-gradient(135deg,#0f172a,#1a1040);border:1px solid #2e1065;border-radius:10px;padding:7px 8px">
+        <div style="font-size:7px;font-weight:800;color:#a78bfa;letter-spacing:1.5px;margin-bottom:5px">🛡️ DIFENSORE</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="background:${topDef.color}22;border:1px solid ${topDef.color}44;border-radius:8px;padding:3px 6px;text-align:center;min-width:38px;flex-shrink:0">
+            <div style="font-family:'Oswald',sans-serif;font-size:16px;font-weight:900;color:${topDef.color};line-height:1">${topDef.pct}%</div>
+            <div style="font-size:6px;color:#475569;margin-top:1px">GOL%</div>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="font-family:'Oswald',sans-serif;font-size:12px;font-weight:900;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${topDef.name}</div>
+            <div style="font-size:7px;color:${topDef.color};font-weight:700">${topDef.squad}   ${posLabel}</div>
+            <div style="display:flex;gap:4px;margin-top:3px;flex-wrap:wrap">
+              <span style="font-size:7px;background:#1e293b;color:#94a3b8;padding:1px 4px;border-radius:20px">GOL ${topDef.goals}</span>
+              <span style="font-size:7px;background:#1e293b;color:#94a3b8;padding:1px 4px;border-radius:20px">AERO️ ${headStars}</span>
+              <span style="font-size:7px;background:#1e293b;color:#94a3b8;padding:1px 4px;border-radius:20px">📐 ${spStars}</span>
+            </div>
           </div>
         </div>
+        <div style="height:3px;background:#1e293b;border-radius:4px;margin-top:5px">
+          <div style="height:100%;width:${topDef.pct}%;background:linear-gradient(90deg,${topDef.color},${topDef.color}88);border-radius:4px;transition:width 1.2s"></div>
+        </div>
       </div>
-      <div style="height:4px;background:#1e293b;border-radius:4px;margin-top:8px">
-        <div style="height:100%;width:${topDef.pct}%;background:linear-gradient(90deg,${topDef.color},${topDef.color}88);border-radius:4px;transition:width 1.2s"></div>
+
+      <!-- CENTROCAMPISTA -->
+      <div style="background:linear-gradient(135deg,#0f172a,#001a1a);border:1px solid #065f46;border-radius:10px;padding:7px 8px">
+        <div style="font-size:7px;font-weight:800;color:#34d399;letter-spacing:1.5px;margin-bottom:5px">FLASH CENTROCAMPISTA</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="background:${topMid.color}22;border:1px solid ${topMid.color}44;border-radius:8px;padding:3px 6px;text-align:center;min-width:38px;flex-shrink:0">
+            <div style="font-family:'Oswald',sans-serif;font-size:16px;font-weight:900;color:#34d399;line-height:1">${topMid.pct}%</div>
+            <div style="font-size:6px;color:#475569;margin-top:1px">GOL%</div>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="font-family:'Oswald',sans-serif;font-size:12px;font-weight:900;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${topMid.name}</div>
+            <div style="font-size:7px;color:#34d399;font-weight:700">${topMid.squad}   ${midPosLabel}</div>
+            <div style="display:flex;gap:4px;margin-top:3px;flex-wrap:wrap">
+              <span style="font-size:7px;background:#1e293b;color:#94a3b8;padding:1px 4px;border-radius:20px">GOL ${topMid.goals}</span>
+              <span style="font-size:7px;background:#1e293b;color:#94a3b8;padding:1px 4px;border-radius:20px">📐 ${midSpStars}</span>
+              <span style="font-size:7px;background:#1e293b;color:#94a3b8;padding:1px 4px;border-radius:20px">🎯 xG/90</span>
+            </div>
+          </div>
+        </div>
+        <div style="height:3px;background:#1e293b;border-radius:4px;margin-top:5px">
+          <div style="height:100%;width:${Math.min(topMid.pct,100)}%;background:linear-gradient(90deg,#34d399,#34d39988);border-radius:4px;transition:width 1.2s"></div>
+        </div>
       </div>
-      <div style="font-size:8px;color:#334155;margin-top:4px;text-align:right">Wikipedia · FBref xG/90 · WhoScored SP rating</div>
+
+    </div>
+    <div style="font-size:7px;color:#334155;margin-top:3px;text-align:right">FBref xG/90   WhoScored SP   Understat</div>
+  </div>
+</div>`;
+}
+
+function over25Card(fix, rank){
+  const pred=predictMatch(fix);
+  const lg=LEAGUES[fix.league]||{flag:'🌍',name:fix.league,color:'#7c3aed'};
+  const ko=new Date(fix.kickoff);
+  const dateStr=ko.toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'});
+  const timeStr=ko.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+  const hT=td(fix.home),aT=td(fix.away);
+  const barColor=pred.over25>=70?'#4ade80':pred.over25>=55?'#facc15':'#fb923c';
+  const rankEmoji=['🥇','🥈','🥉','4️','5️'][rank]||'🔹';
+  return `
+<div class="card" style="border-left-color:${barColor};border-left-width:8px">
+  <div class="card-header">
+    <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+      <span style="font-size:18px">${rankEmoji}</span>
+      <span>${lg.flag}</span>
+      <span class="league-badge">${lg.name}</span>
+      <span style="font-size:12px;font-weight:800;font-family:'Oswald',sans-serif;background:#0a0e1a;color:#e2e8f0;padding:3px 9px;border-radius:20px;border:1px solid #334155">📅 ${dateStr}  ${timeStr}</span>
+    </div>
+    <div style="text-align:right">
+      <div style="font-family:'Oswald',sans-serif;font-size:28px;font-weight:900;color:${barColor};text-shadow:0 0 12px ${barColor}88;line-height:1">${pred.over25}%</div>
+      <div style="font-size:8px;color:#475569;font-weight:700;letter-spacing:1px">OVER 2.5</div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="teams" style="margin-bottom:10px">
+      <div>
+        <div class="team-name">${fix.home}</div>
+        <div class="team-sub">xG ${pred.hxg}   Atk ${hT.atk.toFixed(2)}</div>
+      </div>
+      <div style="text-align:center;flex-shrink:0">
+        <div style="font-family:'Oswald',sans-serif;font-size:13px;font-weight:900;color:#475569">VS</div>
+        <div style="font-size:10px;color:#a78bfa;font-weight:700;margin-top:2px">GOL ${pred.goals} gol prev.</div>
+      </div>
+      <div style="text-align:right">
+        <div class="team-name">${fix.away}</div>
+        <div class="team-sub">xG ${pred.axg}   Atk ${aT.atk.toFixed(2)}</div>
+      </div>
+    </div>
+    <div style="height:10px;background:#1e293b;border-radius:6px;margin-bottom:8px;position:relative;overflow:hidden">
+      <div style="height:100%;width:${pred.over25}%;background:linear-gradient(90deg,${barColor},${barColor}88);border-radius:6px;transition:width 1.2s"></div>
+      <div style="position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:9px;font-weight:800;color:#0a0e1a">${pred.over25}%</div>
+    </div>
+    <div class="odds-row">
+      <div class="odd-box"><div class="odd-val" style="color:${lg.color}">${pred.hxg}</div><div class="odd-label">xG CASA</div></div>
+      <div class="odd-box"><div class="odd-val" style="color:#38bdf8">${pred.axg}</div><div class="odd-label">xG TRASF.</div></div>
+      <div class="odd-box"><div class="odd-val" style="color:#a78bfa">${pred.goals}</div><div class="odd-label">TOT. GOL</div></div>
+      <div class="odd-box"><div class="odd-val" style="color:${pred.btts>=55?'#facc15':'#475569'}">${pred.btts}%</div><div class="odd-label">GG</div></div>
+      <div class="odd-box"><div class="odd-val" style="color:${pred.hWin>=45?lg.color:'#475569'}">${pred.hWin}%</div><div class="odd-label">1</div></div>
     </div>
   </div>
 </div>`;
+}
+
+// ============================================================
+// MIGLIORE MULTIPLA - top 3 partite combinate per quota
+// Formula: combina over25, btts, winner con quote implicite
+// ============================================================
+function multiplaCard(picks){
+  // picks = array of {fix, pred, type, label, prob, lg}
+  const totalProb = picks.reduce((acc,p)=>acc*(p.prob/100),1);
+  const impliedOdds = (1/totalProb).toFixed(2);
+  const confColor = totalProb>=0.45?'#4ade80':totalProb>=0.30?'#facc15':'#fb923c';
+  const bars = picks.map((p,i)=>{
+    const lg = p.lg;
+    const typeColor = p.type==='over25'?'#4ade80':p.type==='btts'?'#facc15':p.type==='home'?lg.color:'#38bdf8';
+    return '<div style="background:#0a0e1a;border:1px solid #1e293b;border-radius:10px;padding:8px 10px;margin-bottom:6px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
+      +'<div style="display:flex;align-items:center;gap:5px">'
+      +'<span style="font-size:10px">'+lg.flag+'</span>'
+      +'<span style="font-size:8px;color:#475569;font-weight:700">'+lg.name+'</span>'
+      +'<span style="font-size:8px;background:'+typeColor+'22;color:'+typeColor+';border:1px solid '+typeColor+'44;padding:0 5px;border-radius:20px;font-weight:800">'+p.label+'</span>'
+      +'</div>'
+      +'<span style="font-family:Oswald,sans-serif;font-size:16px;font-weight:900;color:'+typeColor+'">'+p.prob+'%</span>'
+      +'</div>'
+      +'<div style="display:flex;justify-content:space-between;align-items:center">'
+      +'<span style="font-family:Oswald,sans-serif;font-size:13px;font-weight:800;color:#f1f5f9">'+p.fix.home+' vs '+p.fix.away+'</span>'
+      +'</div>'
+      +'<div style="height:3px;background:#1e293b;border-radius:3px;margin-top:5px">'
+      +'<div style="height:100%;width:'+p.prob+'%;background:linear-gradient(90deg,'+typeColor+','+typeColor+'88);border-radius:3px;transition:width 1.2s"></div>'
+      +'</div>'
+      +'</div>';
+  }).join('');
+
+  return '<div style="background:linear-gradient(135deg,#0f172a,#1a0a2e);border:1px solid #7c3aed44;border-radius:16px;padding:14px;margin-bottom:14px;box-shadow:0 4px 20px rgba(124,58,237,0.2)">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'
+    +'<div>'
+    +'<div style="font-family:Oswald,sans-serif;font-size:11px;font-weight:800;color:#a78bfa;letter-spacing:2px">MULTIPLA CONSIGLIATA</div>'
+    +'<div style="font-size:9px;color:#475569;margin-top:2px">'+picks.length+' selezioni combinate</div>'
+    +'</div>'
+    +'<div style="text-align:right">'
+    +'<div style="font-family:Oswald,sans-serif;font-size:28px;font-weight:900;color:'+confColor+';text-shadow:0 0 12px '+confColor+'88">'+impliedOdds+'x</div>'
+    +'<div style="font-size:8px;color:#475569;font-weight:700">QUOTA IMPLICITA</div>'
+    +'</div>'
+    +'</div>'
+    +bars
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:8px;border-top:1px solid #1e293b">'
+    +'<span style="font-size:8px;color:#475569">Prob. totale combinata</span>'
+    +'<span style="font-family:Oswald,sans-serif;font-size:15px;font-weight:900;color:'+confColor+'">'+(totalProb*100).toFixed(1)+'%</span>'
+    +'</div>'
+    +'</div>';
+}
+
+function renderMultipla(el){
+  const all = UPCOMING.filter(f=>currentLeague==='all'||f.league===currentLeague);
+  const scored = all.map(f=>{
+    const pred = predictMatch(f);
+    const lg = LEAGUES[f.league]||{flag:'?',name:f.league,color:'#7c3aed'};
+    const options = [];
+    // OVER 2.5
+    if(pred.over25>=55) options.push({fix:f,pred,lg,type:'over25',label:'OVER 2.5',prob:pred.over25});
+    // BTTS
+    if(pred.btts>=55) options.push({fix:f,pred,lg,type:'btts',label:'GG',prob:pred.btts});
+    // 1X2 winner se alta confidenza
+    if(pred.hWin>=60) options.push({fix:f,pred,lg,type:'home',label:'1 CASA',prob:pred.hWin});
+    if(pred.aWin>=60) options.push({fix:f,pred,lg,type:'away',label:'2 TRASFERTA',prob:pred.aWin});
+    return options;
+  }).flat().sort((a,b)=>b.prob-a.prob);
+
+  if(!scored.length){
+    el.innerHTML='<div style="text-align:center;padding:50px 20px;color:#475569"><div style="font-size:36px;margin-bottom:10px">🎰</div><div style="font-size:14px;font-weight:700">Nessuna multipla disponibile</div></div>';
+    return;
+  }
+
+  // Build 3 different combinations: safe (3 picks high prob), balanced (3 picks mixed), risky (4 picks)
+  const top = scored.slice(0,8);
+  // Safe: top 3 by prob (no duplicates per match)
+  const safe=[], seenSafe=new Set();
+  for(const p of top){ if(!seenSafe.has(p.fix.id)&&safe.length<3){safe.push(p);seenSafe.add(p.fix.id);} }
+  // Balanced: mix over25 + btts + 1x2
+  const balanced=[], seenBal=new Set();
+  for(const type of ['over25','btts','home','away']){
+    const pick=top.find(p=>p.type===type&&!seenBal.has(p.fix.id));
+    if(pick&&balanced.length<3){balanced.push(pick);seenBal.add(pick.fix.id);}
+  }
+  // Risky: top 4
+  const risky=[], seenRisk=new Set();
+  for(const p of scored){ if(!seenRisk.has(p.fix.id)&&risky.length<4){risky.push(p);seenRisk.add(p.fix.id);} }
+
+  const sections = [];
+  if(safe.length>=2) sections.push({title:'MULTIPLA SICURA',icon:'🛡️',color:'#4ade80',picks:safe});
+  if(balanced.length>=2&&balanced.some(p=>safe.every(s=>s.fix.id!==p.fix.id||s.type!==p.type))) sections.push({title:'MULTIPLA BILANCIATA',icon:'[=]',color:'#facc15',picks:balanced});
+  if(risky.length>=3) sections.push({title:'MULTIPLA AGGRESSIVA',icon:'🔥',color:'#fb923c',picks:risky});
+
+  el.innerHTML='<div class="section-header">'
+    +'<span style="font-size:20px">🎰</span>'
+    +'<div>'
+    +'<div style="font-family:Oswald,sans-serif;font-size:14px;font-weight:700;color:#a78bfa">MIGLIORE MULTIPLA</div>'
+    +'<div style="font-size:10px;color:#475569">Selezioni ottimali combinate   xG FUSION 51 fonti</div>'
+    +'</div>'
+    +'</div>'
+    +sections.map(s=>'<div style="margin-bottom:6px;padding:6px 10px 0;border-left:3px solid '+s.color+'">'
+      +'<div style="font-family:Oswald,sans-serif;font-size:10px;font-weight:800;color:'+s.color+';letter-spacing:2px;margin-bottom:6px">'+s.icon+' '+s.title+'</div>'
+      +'</div>'
+      +multiplaCard(s.picks)).join('');
+}
+
+
+
+// ── MINI GRAFICO xG EVOLUTION (SVG sparkline simulato da stats live) ─────────
+function buildXgChartSVG(m, xg, lgColor){
+  // Genera punti xG simulati ogni 15 minuti fino al minuto corrente
+  const min = m.min||45;
+  const hxg = parseFloat(xg.h)||0;
+  const axg = parseFloat(xg.a)||0;
+  const steps = Math.max(3, Math.ceil(min/15));
+  const W=240, H=50, pad=8;
+  const chartW = W - pad*2;
+  const chartH = H - pad*2;
+  
+  // Build xG curve points (progressive, with some variance)
+  const hPts=[], aPts=[];
+  for(let i=0;i<=steps;i++){
+    const t=i/steps;
+    // Simulate progressive xG with slight acceleration in second half
+    const curve = t<0.5 ? t*0.85 : 0.425+((t-0.5)*1.15);
+    const corner_boost = (m.hCorn||0)*0.03;
+    const corner_boostA = (m.aCorn||0)*0.03;
+    hPts.push(hxg * curve * (1 + corner_boost*(i%2===0?0.1:0)));
+    aPts.push(axg * curve * (1 + corner_boostA*(i%2===1?0.1:0)));
+  }
+  
+  const maxXg = Math.max(...hPts, ...aPts, 0.5) * 1.15;
+  
+  function toX(i){ return pad + (i/steps)*chartW; }
+  function toY(v){ return H - pad - (v/maxXg)*chartH; }
+  
+  const hPath = hPts.map((v,i)=>(i===0?'M':'L')+toX(i).toFixed(1)+','+toY(v).toFixed(1)).join(' ');
+  const aPath = aPts.map((v,i)=>(i===0?'M':'L')+toX(i).toFixed(1)+','+toY(v).toFixed(1)).join(' ');
+  
+  // Area fills
+  const hArea = hPath + ' L'+toX(steps).toFixed(1)+','+H+' L'+pad+','+H+' Z';
+  const aArea = aPath + ' L'+toX(steps).toFixed(1)+','+H+' L'+pad+','+H+' Z';
+  
+  // Score events (simulate gol at random minutes)
+  const hGoalPts = m.hS>0 ? [Math.round(min*0.6)] : [];
+  const aGoalPts = m.aS>0 ? [Math.round(min*0.55)] : [];
+  
+  const goalDots = [
+    ...hGoalPts.map(gm=>{ const gi=Math.round((gm/min)*steps); const gx=toX(gi); const gy=toY(hPts[gi]||0); return '<circle cx="'+gx.toFixed(1)+'" cy="'+gy.toFixed(1)+'" r="4" fill="'+lgColor+'" stroke="#0a0e1a" stroke-width="1.5"/>'; }),
+    ...aGoalPts.map(gm=>{ const gi=Math.round((gm/min)*steps); const gx=toX(gi); const gy=toY(aPts[gi]||0); return '<circle cx="'+gx.toFixed(1)+'" cy="'+gy.toFixed(1)+'" r="4" fill="#38bdf8" stroke="#0a0e1a" stroke-width="1.5"/>'; })
+  ].join('');
+  
+  // Labels at end
+  const hLabelX = (W-pad+2).toFixed(1);
+  const aLabelX = (W-pad+2).toFixed(1);
+  const hLabelY = toY(hxg).toFixed(1);
+  const aLabelY = (toY(axg)+12).toFixed(1);
+  
+  return '<div class="xg-chart">'
+    +'<div style="font-size:7px;color:#475569;font-weight:700;letter-spacing:1px;margin-bottom:4px">📈 ANDAMENTO xG (simulato)</div>'
+    +'<svg width="100%" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" style="display:block">'
+    // Grid line at 50% minute
+    +'<line x1="'+toX(Math.floor(steps/2)).toFixed(1)+'" y1="'+pad+'" x2="'+toX(Math.floor(steps/2)).toFixed(1)+'" y2="'+(H-pad)+'" stroke="#1e293b" stroke-width="1" stroke-dasharray="2,2"/>'
+    // Area fills (transparent)
+    +'<path d="'+hArea+'" fill="'+lgColor+'" opacity="0.08"/>'
+    +'<path d="'+aArea+'" fill="#38bdf8" opacity="0.08"/>'
+    // Lines
+    +'<path d="'+hPath+'" fill="none" stroke="'+lgColor+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
+    +'<path d="'+aPath+'" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
+    // Goal dots
+    +goalDots
+    // End labels
+    +'<text x="'+hLabelX+'" y="'+hLabelY+'" fill="'+lgColor+'" font-size="8" font-weight="800" font-family="Oswald">'+xg.h+'</text>'
+    +'<text x="'+hLabelX+'" y="'+aLabelY+'" fill="#38bdf8" font-size="8" font-weight="800" font-family="Oswald">'+xg.a+'</text>'
+    +'</svg>'
+    +'<div style="display:flex;gap:10px;margin-top:3px">'
+    +'<span style="font-size:7px;color:'+lgColor+'">&#9644; '+m.home+'</span>'
+    +'<span style="font-size:7px;color:#38bdf8">&#9644; '+m.away+'</span>'
+    +'</div>'
+    +'</div>';
 }
 
 function render(){
@@ -1264,18 +1849,41 @@ function render(){
     el.innerHTML=`<div class="section-header">
       <span style="font-size:20px">🔮</span>
       <div>
-        <div style="font-family:'Oswald',sans-serif;font-size:14px;font-weight:700;color:#a78bfa">PREVISIONI — PROSSIME PARTITE</div>
-        <div style="font-size:10px;color:#475569">Dixon-Coles · xG · forma · ranking</div>
+        <div style="font-family:'Oswald',sans-serif;font-size:14px;font-weight:700;color:#a78bfa">PREVISIONI &mdash; PROSSIME PARTITE</div>
+        <div style="font-size:10px;color:#475569">Dixon-Coles   xG   forma   ranking</div>
       </div>
-    </div>`+list.map(futureCard).join('');
+    </div>`;
+    const fCards=list.map(f=>{saveHistory(f,predictMatch(f));return futureCard(f);}).join('');
+    el.innerHTML+=isDesktop?'<div class="cards-grid">'+fCards+'</div>':fCards;
     return;
   }
+  if(currentTab==='over25'){
+    const all=UPCOMING.filter(f=>currentLeague==='all'||f.league===currentLeague);
+    const ranked=all
+      .map(f=>({f,pred:predictMatch(f)}))
+      .sort((a,b)=>b.pred.over25-a.pred.over25)
+      .slice(0,5);
+    const o25Cards=ranked.map(({f},i)=>over25Card(f,i)).join('');
+    el.innerHTML=`<div class="section-header">
+      <span style="font-size:20px">📈</span>
+      <div>
+        <div style="font-family:'Oswald',sans-serif;font-size:14px;font-weight:700;color:#4ade80">TOP 5 &mdash; OVER 2.5 GOL</div>
+        <div style="font-size:10px;color:#475569">Dixon-Coles   Poisson bivariato   xG FUSION 51 fonti</div>
+      </div>
+    </div>`+(isDesktop?'<div class="cards-grid">'+o25Cards+'</div>':o25Cards);
+    return;
+  }
+  if(currentTab==='multipla'){
+    renderMultipla(el);
+    return;
+  }
+
   // LIVE TABS
   if(!hasLive){
     el.innerHTML=`<div style="text-align:center;padding:50px 20px">
       <div style="font-size:54px;margin-bottom:14px;opacity:.25">📡</div>
       <div style="font-family:'Oswald',sans-serif;font-size:22px;font-weight:900;color:#334155;margin-bottom:8px">NESSUNA PARTITA IN CORSO</div>
-      <div style="font-size:12px;color:#475569;margin-bottom:22px">Aggiornamento automatico ogni 45 secondi</div>
+      <div style="font-size:12px;color:#475569;margin-bottom:22px">Aggiornamento automatico ogni 10 secondi</div>
       <button onclick="setTabId('future');render();" class="ai-btn" style="font-size:13px;padding:10px 22px">🔮 Vedi prossime partite</button>
     </div>`;
     return;
@@ -1292,25 +1900,26 @@ function render(){
   const sorted=src
     .map(m=>{const xg=calcXG(m);return{m,prob:goalProb(m,xg,isHT)};})
     .sort((a,b)=>b.prob-a.prob);
-  el.innerHTML=sorted.map(({m})=>matchCard(m,isHT)).join('');
+  const cardsHtml=sorted.map(({m})=>matchCard(m,isHT)).join('');
+  el.innerHTML=isDesktop?'<div class="cards-grid">'+cardsHtml+'</div>':cardsHtml;
 }
 
 function openAI(){
   document.getElementById('aiModal').style.display='flex';
-  document.getElementById('aiContent').innerHTML='<span class="spinner"></span><span style="margin-left:8px;color:#475569">Analisi xG avanzata…</span>';
+  document.getElementById('aiContent').innerHTML='<span class="spinner"></span><span style="margin-left:8px;color:#475569">Analisi xG avanzata...</span>';
   const src=hasLive?[...(liveHT||[]),...(liveFT||[])].slice(0,6):[...SEED_HT,...SEED_FT].slice(0,6);
   const lines=src.map(m=>{
     const xg=calcXG(m);
     const prob=goalProb(m,xg,m.min<=44).toFixed(0);
     const hSP=scorerProb(m,xg,'h').toFixed(0),aSP=scorerProb(m,xg,'a').toFixed(0);
-    return `${m.home} vs ${m.away} | ${m.min}' | xG ${xg.h}–${xg.a} | prob gol ${prob}% | corner ${m.hCorn||0}–${m.aCorn||0} | att.peric ${m.hDangAtt||0}–${m.aDangAtt||0} | rossi ${m.hRed||0}–${m.aRed||0} | chi segna: ${m.home} ${hSP}% / ${m.away} ${aSP}%`;
+    return `${m.home} vs ${m.away} | ${m.min}' | xG ${xg.h}&ndash;${xg.a} | prob gol ${prob}% | corner ${m.hCorn||0}&ndash;${m.aCorn||0} | att.peric ${m.hDangAtt||0}&ndash;${m.aDangAtt||0} | rossi ${m.hRed||0}&ndash;${m.aRed||0} | chi segna: ${m.home} ${hSP}% / ${m.away} ${aSP}%`;
   }).join('\n');
   fetch('https://api.anthropic.com/v1/messages',{
     method:'POST',
     headers:{'Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
     body:JSON.stringify({
       model:'claude-sonnet-4-20250514',max_tokens:450,
-      messages:[{role:'user',content:`Sei un analista calcistico esperto. Dati live (xG calcolato con 51 fonti: StatsBomb, Opta, Understat, FBref, WhoScored, SFStats, Sofascore, Fotmob, Overlyzer, Wyscout, ScoreTrend, Flashscore, Diretta.it, bet365, Snai, Betfair, BetPractice, 1x2Stats, OpenFootball, Transfermarkt, CIES, StatisticheCalcio, Livescore, xScores, Soccerway, OptaAnalyst, The Athletic, Dixon-Coles, Maher):\n${lines}\n\nDai 4 previsioni brevi e sicure di gol imminente. Formato:\n🎯 [Partita]: [squadra] segnerà — [motivo 1 riga: xG alto / corner / uomo in più / forma]. Max 160 parole totali.`}]
+      messages:[{role:'user',content:`Sei un analista calcistico esperto. Dati live (xG calcolato con 51 fonti: StatsBomb, Opta, Understat, FBref, WhoScored, SFStats, Sofascore, Fotmob, Overlyzer, Wyscout, ScoreTrend, Flashscore, Diretta.it, bet365, Snai, Betfair, BetPractice, 1x2Stats, OpenFootball, Transfermarkt, CIES, StatisticheCalcio, Livescore, xScores, Soccerway, OptaAnalyst, The Athletic, Dixon-Coles, Maher):\n${lines}\n\nDai 4 previsioni brevi e sicure di gol imminente. Formato:\n🎯 [Partita]: [squadra] segnera &mdash; [motivo 1 riga: xG alto / corner / uomo in piu / forma]. Max 160 parole totali.`}]
     })
   })
   .then(r=>r.json())
@@ -1322,8 +1931,44 @@ function openAI(){
 }
 function closeAI(){document.getElementById('aiModal').style.display='none';}
 
+
+// ── LAYOUT TOGGLE: mobile / desktop ──────────────────────────────────────────
+let isDesktop = window.innerWidth >= 1024;
+function applyLayout(){
+  const btn = document.getElementById('viewToggleBtn');
+  if(isDesktop){
+    document.body.classList.add('desktop-mode');
+    if(btn){ btn.textContent='🖥️'; btn.classList.add('active'); btn.title='Passa a mobile'; }
+  } else {
+    document.body.classList.remove('desktop-mode');
+    if(btn){ btn.textContent='📱'; btn.classList.remove('active'); btn.title='Passa a desktop'; }
+  }
+  // Wrap/unwrap cards in grid
+  const el = document.getElementById('content');
+  if(isDesktop && el && !el.querySelector('.cards-grid')){
+    const cards = Array.from(el.children).filter(c=>c.classList.contains('card')||c.classList.contains('future-card'));
+    if(cards.length>1){
+      const grid = document.createElement('div');
+      grid.className='cards-grid';
+      cards.forEach(c=>grid.appendChild(c));
+      el.appendChild(grid);
+    }
+  }
+  render();
+}
+function toggleView(){
+  isDesktop = !isDesktop;
+  applyLayout();
+}
+// Auto-detect on load
+window.addEventListener('resize', ()=>{
+  const now = window.innerWidth >= 1024;
+  if(now !== isDesktop){ isDesktop = now; applyLayout(); }
+});
+
+applyLayout();
 buildFilters();render();fetchLive();
-setInterval(fetchLive,45000);
+setInterval(fetchLive,10000);
 </script>
 
 </body>
