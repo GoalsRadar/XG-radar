@@ -27,19 +27,38 @@
 
 ```
 /* ── DESKTOP LAYOUT ── */
-body.desktop-mode .container{max-width:1400px;padding:16px 20px}
-body.desktop-mode .header > div{max-width:1400px}
-body.desktop-mode .cards-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;align-items:start}
-body.desktop-mode .cards-grid .card{margin-bottom:0}
-body.desktop-mode .card{font-size:105%}
-body.desktop-mode .team-name{font-size:19px!important}
-body.desktop-mode .score{font-size:40px!important}
-body.desktop-mode .min-badge{font-size:32px!important}
-body.desktop-mode .xg-val{font-size:28px!important}
-body.desktop-mode .tabs{gap:6px}
-body.desktop-mode .tab{font-size:13px;padding:12px 0}
-body.desktop-mode .section-header{margin-bottom:18px}
-body.desktop-mode .filter-btn{font-size:12px;padding:5px 14px}
+body.desktop-mode .container{max-width:100%;padding:16px 40px}
+body.desktop-mode .header > div{max-width:100%;padding:0 26px}
+/* NO grid — one card per row, full width */
+body.desktop-mode .cards-grid{display:block}
+body.desktop-mode .card{
+  margin-bottom:16px;
+  display:grid;
+  grid-template-columns:auto 1fr;
+  grid-template-rows:auto;
+}
+/* Desktop card: header full width top, body in wide layout */
+body.desktop-mode .card-header{grid-column:1/-1}
+body.desktop-mode .card-body{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;align-items:start}
+body.desktop-mode .teams{margin-bottom:0}
+body.desktop-mode .xg-row{margin:0}
+body.desktop-mode .scorer-section{margin-top:0}
+body.desktop-mode .bar-container{margin:4px 0}
+body.desktop-mode .xg-chart{margin:0}
+body.desktop-mode .source-tag{display:none}
+/* Bigger text */
+body.desktop-mode .team-name{font-size:20px!important}
+body.desktop-mode .score{font-size:44px!important;letter-spacing:8px!important}
+body.desktop-mode .min-badge{font-size:34px!important}
+body.desktop-mode .xg-val{font-size:30px!important}
+body.desktop-mode .tabs{gap:8px}
+body.desktop-mode .tab{font-size:14px;padding:13px 0}
+body.desktop-mode .section-header{margin-bottom:20px}
+body.desktop-mode .filter-btn{font-size:13px;padding:6px 16px}
+body.desktop-mode .odd-val{font-size:16px!important}
+body.desktop-mode .stat-vals{font-size:14px!important}
+body.desktop-mode .scorer-pct{font-size:18px!important}
+body.desktop-mode .scorer-name{font-size:16px!important}
 
 /* view toggle button */
 .view-toggle{display:flex;align-items:center;gap:4px;background:#0f172a;border:1px solid #1e293b;color:#94a3b8;border-radius:9px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:700;transition:all .2s;white-space:nowrap}
@@ -1854,7 +1873,7 @@ function render(){
       </div>
     </div>`;
     const fCards=list.map(f=>{saveHistory(f,predictMatch(f));return futureCard(f);}).join('');
-    el.innerHTML+=isDesktop?'<div class="cards-grid">'+fCards+'</div>':fCards;
+    el.innerHTML+=fCards;
     return;
   }
   if(currentTab==='over25'){
@@ -1870,7 +1889,7 @@ function render(){
         <div style="font-family:'Oswald',sans-serif;font-size:14px;font-weight:700;color:#4ade80">TOP 5 &mdash; OVER 2.5 GOL</div>
         <div style="font-size:10px;color:#475569">Dixon-Coles   Poisson bivariato   xG FUSION 51 fonti</div>
       </div>
-    </div>`+(isDesktop?'<div class="cards-grid">'+o25Cards+'</div>':o25Cards);
+    </div>`+o25Cards;
     return;
   }
   if(currentTab==='multipla'){
@@ -1900,8 +1919,7 @@ function render(){
   const sorted=src
     .map(m=>{const xg=calcXG(m);return{m,prob:goalProb(m,xg,isHT)};})
     .sort((a,b)=>b.prob-a.prob);
-  const cardsHtml=sorted.map(({m})=>matchCard(m,isHT)).join('');
-  el.innerHTML=isDesktop?'<div class="cards-grid">'+cardsHtml+'</div>':cardsHtml;
+  el.innerHTML=sorted.map(({m})=>matchCard(m,isHT)).join('');
 }
 
 function openAI(){
