@@ -1343,14 +1343,31 @@ async function fetchLive(){
   checkGoals([...ht,...ft]);
   if(hasLive){
     document.getElementById('statusDot').style.background='#4ade80';
-    document.getElementById('statusText').textContent=`[OK] ${ht.length+ft.length} partite live   api-sports.io`;
+    document.getElementById('statusText').textContent='[OK] '+(ht.length+ft.length)+' partite live   prossimo check 30s';
+    let countdown2=30;
+    if(window._countdownTimer) clearInterval(window._countdownTimer);
+    window._countdownTimer=setInterval(()=>{
+      countdown2--;
+      if(countdown2<=0){ clearInterval(window._countdownTimer); return; }
+      const el=document.getElementById('statusText');
+      if(el) el.textContent='[OK] '+(ht.length+ft.length)+' partite live   '+countdown2+'s';
+    },1000);
     document.getElementById('modeBadge').textContent='LIVE';
     document.getElementById('modeBadge').className='badge live';
     if(ht.length&&currentTab==='future'){setTabId('ht');}
     else if(ft.length&&!ht.length&&currentTab==='future'){setTabId('ft');}
   }else{
     document.getElementById('statusDot').style.background='#475569';
-    document.getElementById('statusText').textContent='🔎 Nessuna partita live   prossimo check 10s';
+    document.getElementById('statusText').textContent='Nessuna partita live   prossimo check 30s';
+    // Start countdown
+    let countdown=30;
+    if(window._countdownTimer) clearInterval(window._countdownTimer);
+    window._countdownTimer=setInterval(()=>{
+      countdown--;
+      if(countdown<=0){ clearInterval(window._countdownTimer); return; }
+      const el=document.getElementById('statusText');
+      if(el) el.textContent='Nessuna partita live   prossimo check '+countdown+'s';
+    },1000);
     document.getElementById('modeBadge').textContent='DEMO';
     document.getElementById('modeBadge').className='badge';
     setTabId('future');
@@ -1948,7 +1965,9 @@ function closeAI(){document.getElementById('aiModal').style.display='none';}
 
 
 buildFilters();render();fetchLive();
-setInterval(fetchLive,10000);
+// Sofascore: nessun limite — refresh ogni 30 secondi
+setInterval(()=>{ if(!document.hidden) fetchLive(); }, 30000);
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) fetchLive(); });
 </script>
 
 </body>
