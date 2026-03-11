@@ -1,3 +1,4 @@
+​You​
 <!DOCTYPE html>
 
 <html lang="it">
@@ -1657,69 +1658,92 @@ function scorerThreeCol(atk, mid, def, lgCol) {
 }
 async function fetchLive(){
   document.getElementById('statusDot').style.background='#38bdf8';
-  document.getElementById('statusText').textContent=' Connessione api-sports.io...';
+  document.getElementById('statusText').textContent='🤖 AI cerca partite live...';
   const ht=[],ft=[];
   try{
-    const r=await fetch(WORKER,{mode:'cors',credentials:'omit'});
-    if(!r.ok)throw new Error('HTTP '+r.status);
-    const d=await r.json();
-    for(const f of (d.response||[])){
-      const s=f.fixture?.status?.short;
-      if(!['1H','2H','ET','HT','P'].includes(s))continue;
-      // Minuto corretto: 1H=1-45, HT=45, 2H=46-90, ET=91+
-      let min=parseInt(f.fixture?.status?.elapsed)||0;
-      if(s==='HT') min=45;
-      else if(s==='2H' && min<46) min=46;
-      else if(s==='1H' && min<1) min=1;
-      if(min===0) min = s==='2H'?46:1;
-      const lk=guessLeague(f.league?.name||'');
-      if(!LEAGUES[lk])LEAGUES[lk]={name:f.league?.name||lk,flag:'🌍',color:'#94a3b8'};
-      const stats=f.statistics||[];
-      function sv(teamId,key){
-        const t=stats.find(s=>s.team?.id===teamId);
-        if(!t)return 0;
-        const e=t.statistics?.find(x=>x.type===key);
-        const v=e?.value;
-        if(typeof v==='string'&&v.endsWith('%'))return parseFloat(v)||0;
-        return parseInt(v)||0;
+    const resp = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1200,
+        tools:[{type:'web_search_20250305',name:'web_search'}],
+        messages:[{role:'user',content:`Cerca TUTTI i punteggi LIVE adesso di calcio in tutto il mondo: Serie A, Premier League, La Liga, Bundesliga, Ligue 1, Champions League, Europa League, Conference League, Super Lig, Primeira Liga, Eredivisie, Serie B, Championship, Liga MX, MLS, Saudi Pro League, Russian Premier League, Belgian Pro League, Scottish Premiership, Superliga Argentina, Brasileirao, e qualsiasi altra partita di calcio attualmente in corso.
+Restituisci SOLO un array JSON valido, nessun testo fuori dal JSON, nessun markdown:
+[
+  {
+    "home": "Squadra Casa",
+    "away": "Squadra Trasferta",
+    "hS": 1,
+    "aS": 0,
+    "min": 34,
+    "status": "1H",
+    "league": "serie_a",
+    "hSh": 5,
+    "aSh": 3,
+    "hCorn": 3,
+    "aCorn": 1,
+    "hP": 55,
+    "aP": 45
+  }
+]
+Regole:
+- status: "1H" primo tempo, "HT" intervallo, "2H" secondo tempo
+- league: usa uno di questi codici: serie_a, epl, ucl, uel, uecl, la_liga, bundesliga, ligue_1, super_lig, primeira, eredivisie, serie_b, championship, liga_mx, mls, saudi_pro, russian_pl, belgian_pro, scottish_pl, arg_superliga, brasileirao, other
+- min: minuto reale della partita (1-45 primo tempo, 46-90 secondo)
+- Se non ci sono partite live adesso restituisci []
+- Includi solo partite ATTUALMENTE IN CORSO, non quelle finite o non ancora iniziate`}]
+      })
+    });
+    const data = await resp.json();
+    const textBlock = (data.content||[]).find(b=>b.type==='text');
+    if(textBlock){
+      const raw = textBlock.text.replace(/```json|```/g,'').trim();
+      // Trova il primo [ e l'ultimo ]
+      const start = raw.indexOf('[');
+      const end = raw.lastIndexOf(']');
+      if(start!==-1 && end!==-1){
+        const matches = JSON.parse(raw.slice(start, end+1));
+        for(const m of matches){
+          const lk = m.league || guessLeague(m.home+' '+m.away);
+          if(!LEAGUES[lk]) LEAGUES[lk]={name:lk,flag:'🌍',color:'#94a3b8'};
+          const match = {
+            id: 'ai_'+(m.home+m.away).replace(/\s/g,''),
+            home: m.home, away: m.away,
+            hS: parseInt(m.hS)||0, aS: parseInt(m.aS)||0,
+            min: parseInt(m.min)||1,
+            status: m.status||'1H',
+            league: lk,
+            hP: parseInt(m.hP)||50, aP: parseInt(m.aP)||50,
+            hSh: parseInt(m.hSh)||0, aSh: parseInt(m.aSh)||0,
+            hSOT: parseInt(m.hSOT)||0, aSOT: parseInt(m.aSOT)||0,
+            hCorn: parseInt(m.hCorn)||0, aCorn: parseInt(m.aCorn)||0,
+            hDangAtt: parseInt(m.hDangAtt)||0, aDangAtt: parseInt(m.aDangAtt)||0,
+            hFouls: parseInt(m.hFouls)||0, aFouls: parseInt(m.aFouls)||0,
+            hRed: parseInt(m.hRed)||0, aRed: parseInt(m.aRed)||0,
+          };
+          if(m.status==='1H'||m.status==='HT') ht.push(match);
+          else ft.push(match);
+        }
       }
-      const hId=f.teams?.home?.id,aId=f.teams?.away?.id;
-      const m={
-        id:'l'+f.fixture.id,
-        home:f.teams?.home?.name||'Home',away:f.teams?.away?.name||'Away',
-        hS:f.goals?.home??0,aS:f.goals?.away??0,min,status:s,
-        hP:sv(hId,'Ball Possession')||50,aP:sv(aId,'Ball Possession')||50,
-        hSh:sv(hId,'Total Shots'),aSh:sv(aId,'Total Shots'),
-        hSOT:sv(hId,'Shots on Goal'),aSOT:sv(aId,'Shots on Goal'),
-        hCorn:sv(hId,'Corner Kicks'),aCorn:sv(aId,'Corner Kicks'),
-        hDangAtt:sv(hId,'Dangerous Attacks')||sv(hId,'Attacks'),
-        aDangAtt:sv(aId,'Dangerous Attacks')||sv(aId,'Attacks'),
-        hFouls:sv(hId,'Fouls'),aFouls:sv(aId,'Fouls'),
-        hRed:sv(hId,'Red Cards'),aRed:sv(aId,'Red Cards'),
-        hPen:sv(hId,'Penalty'),aPen:sv(aId,'Penalty'),
-        league:lk,
-      };
-      // HT = intervallo, 1H = primo tempo, 2H/ET = secondo tempo
-      if(s==='1H'||s==='HT') ht.push(m); else ft.push(m);
     }
   }catch(e){
-    document.getElementById('statusText').textContent='(!)️ '+e.message.slice(0,50);
+    document.getElementById('statusText').textContent='⚠️ '+e.message.slice(0,50);
   }
   liveHT=ht.length?ht:null;
   liveFT=ft.length?ft:null;
   hasLive=ht.length+ft.length>0;
-  // GOL DETECTOR
   checkGoals([...ht,...ft]);
   if(hasLive){
     document.getElementById('statusDot').style.background='#4ade80';
-    document.getElementById('statusText').textContent='[OK] '+(ht.length+ft.length)+' partite live   prossimo check 20s';
+    document.getElementById('statusText').textContent='🤖 '+(ht.length+ft.length)+' partite live   20s';
     let countdown2=20;
     if(window._countdownTimer) clearInterval(window._countdownTimer);
     window._countdownTimer=setInterval(()=>{
       countdown2--;
       if(countdown2<=0){ clearInterval(window._countdownTimer); return; }
       const el=document.getElementById('statusText');
-      if(el) el.textContent='[OK] '+(ht.length+ft.length)+' partite live   '+countdown2+'s';
+      if(el) el.textContent='🤖 '+(ht.length+ft.length)+' partite live   '+countdown2+'s';
     },1000);
     document.getElementById('modeBadge').textContent='LIVE';
     document.getElementById('modeBadge').className='badge live';
@@ -1727,15 +1751,14 @@ async function fetchLive(){
     else if(ft.length&&!ht.length&&currentTab==='future'){setTabId('ft');}
   }else{
     document.getElementById('statusDot').style.background='#475569';
-    document.getElementById('statusText').textContent='Nessuna partita live   prossimo check 20s';
-    // Start countdown
+    document.getElementById('statusText').textContent='Nessuna partita live   20s';
     let countdown=20;
     if(window._countdownTimer) clearInterval(window._countdownTimer);
     window._countdownTimer=setInterval(()=>{
       countdown--;
       if(countdown<=0){ clearInterval(window._countdownTimer); return; }
       const el=document.getElementById('statusText');
-      if(el) el.textContent='Nessuna partita live   prossimo check '+countdown+'s';
+      if(el) el.textContent='Nessuna partita live   '+countdown+'s';
     },1000);
     document.getElementById('modeBadge').textContent='DEMO';
     document.getElementById('modeBadge').className='badge';
@@ -1757,7 +1780,7 @@ function setTab(tab,btn){
 function setLeague(id){currentLeague=id;buildFilters();render();}
 
 function buildFilters(){
-  const FIXED=['all','serie_a','epl','la_liga','ligue_1','super_lig','primeira','ucl','uel','uecl'];
+  const FIXED=['all','serie_a','epl','la_liga','bundesliga','ligue_1','super_lig','primeira','eredivisie','ucl','uel','uecl','serie_b','championship','liga_mx','mls','saudi_pro','brasileirao'];
   const used=new Set(FIXED);
   const src=hasLive?[...(liveHT||[]),...(liveFT||[])]:getUpcoming();
   src.forEach(m=>used.add(m.league));
@@ -2362,24 +2385,40 @@ function closeAI(){document.getElementById('aiModal').style.display='none';}
 
 async function fetchFixtures(){
   try{
-    const r=await fetch(WORKER+'?type=fixtures',{mode:'cors',credentials:'omit'});
-    if(!r.ok) throw new Error('HTTP '+r.status);
-    const d=await r.json();
-    const arr=d.response||[];
-    if(arr.length>0){
-      dynamicFixtures=arr.map(function(f){
-        var lk=guessLeague(f.league?.name||'');
-        if(!LEAGUES[lk]) LEAGUES[lk]={name:f.league?.name||lk,flag:'🌍',color:'#94a3b8'};
-        return {
-          id:'dyn_'+f.fixture.id,
-          home:f.teams.home.name,
-          away:f.teams.away.name,
-          kickoff:f.fixture.date||new Date().toISOString(),
-          league:lk
-        };
-      });
-      buildFilters();
-      if(currentTab==='future'||currentTab==='over25'||currentTab==='multipla') render();
+    const today=new Date();
+    const tomorrow=new Date(today); tomorrow.setDate(tomorrow.getDate()+1);
+    const fmt=d=>d.toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'long'});
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1500,
+        tools:[{type:'web_search_20250305',name:'web_search'}],
+        messages:[{role:'user',content:`Cerca TUTTE le partite di calcio di oggi ${fmt(today)} e domani ${fmt(tomorrow)} in tutto il mondo: Serie A, Premier League, La Liga, Bundesliga, Ligue 1, Champions League, Europa League, Conference League, Super Lig, Primeira Liga, Eredivisie, Serie B, Championship, Liga MX, MLS, Saudi Pro League, e tutti gli altri campionati principali.
+Restituisci SOLO un array JSON, nessun testo fuori, nessun markdown:
+[{"home":"Squadra Casa","away":"Squadra Trasferta","kickoff":"2025-03-11T20:45:00","league":"serie_a"}]
+league deve essere uno di: serie_a, epl, ucl, uel, uecl, la_liga, bundesliga, ligue_1
+kickoff in formato ISO. Includi solo partite non ancora iniziate o di domani.`}]
+      })
+    });
+    const data=await resp.json();
+    const tb=(data.content||[]).find(b=>b.type==='text');
+    if(tb){
+      const raw=tb.text.replace(/```json|```/g,'').trim();
+      const s=raw.indexOf('['), e=raw.lastIndexOf(']');
+      if(s!==-1&&e!==-1){
+        const arr=JSON.parse(raw.slice(s,e+1));
+        if(arr.length>0){
+          dynamicFixtures=arr.map((f,i)=>{
+            const lk=f.league||guessLeague(f.home+' '+f.away);
+            if(!LEAGUES[lk]) LEAGUES[lk]={name:lk,flag:'🌍',color:'#94a3b8'};
+            return {id:'ai_fix_'+i, home:f.home, away:f.away, kickoff:f.kickoff||new Date().toISOString(), league:lk};
+          });
+          buildFilters();
+          if(currentTab==='future'||currentTab==='over25'||currentTab==='multipla') render();
+        }
+      }
     }
   }catch(e){ console.warn('fixtures err',e); }
 }
@@ -2390,18 +2429,7 @@ function getUpcoming(){
 }
 
 async function fetchOdds(){
-  var now=Date.now();
-  if(now-lastOddsFetch < 120000) return; // max ogni 2 minuti
-  lastOddsFetch=now;
-  try{
-    var r=await fetch(WORKER+'?type=odds',{mode:'cors',credentials:'omit'});
-    if(!r.ok) return;
-    var d=await r.json();
-    if(d.odds && d.count>0){
-      oddsCache=d.odds;
-      if(currentTab==='ht'||currentTab==='ft') render();
-    }
-  }catch(e){ console.warn('odds err',e); }
+  // Quote calcolate internamente con Dixon-Coles, nessuna API esterna
 }
 
 function getOddsForMatch(home, away){
@@ -2417,11 +2445,10 @@ function getOddsForMatch(home, away){
   return null;
 }
 
-buildFilters();render();fetchLive();fetchFixtures();fetchOdds();
+buildFilters();render();fetchLive();fetchFixtures();
 setInterval(()=>{ if(!document.hidden) fetchLive(); }, 20000);
-setInterval(()=>{ fetchFixtures(); }, 300000);
-setInterval(()=>{ fetchOdds(); }, 120000);
-document.addEventListener('visibilitychange',()=>{ if(!document.hidden){ fetchLive(); fetchOdds(); } });
+setInterval(()=>{ fetchFixtures(); }, 1800000);
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden){ fetchLive(); } });
 </script>
 
 </body>
