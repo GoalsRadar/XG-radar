@@ -1657,7 +1657,7 @@ function scorerThreeCol(atk, mid, def, lgCol) {
 }
 function extractJSON(raw) {
   // Pulisci markdown e caratteri spuri
-  raw = raw.replace(/```json|```/gi, '').replace(/[�-]/g, ' ').trim();
+  raw = raw.replace(/```json|```/gi, '').replace(/[\u0000-\u001f\u007f]/g, ' ').trim();
   // Prova array [ ] prima
   let depth = 0, start = -1;
   for (let i = 0; i < raw.length; i++) {
