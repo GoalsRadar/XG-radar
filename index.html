@@ -256,6 +256,9 @@ body.desktop-mode .scorer-name{font-size:16px!important}
 
 <script>
 const WORKER='https://still-term-cd49.marcocuscito81.workers.dev/';
+let dynamicFixtures=[];
+let oddsCache={};
+let lastOddsFetch=0;
 
 const LEAGUES={
   epl:       {name:"Premier League",  flag:"ENG",color:"#7c3aed"},
@@ -635,6 +638,108 @@ function scorerProb(m,xg,side){
   const rate=xgV/Math.max(m.min,1)*15;
   const rb=t.rank<=3?1.15:t.rank<=6?1.0:0.88;
   return Math.min((1-Math.exp(-rate*rb*formBonus(name)))*100,99);
+}
+
+// ======================================================================
+//  MOTORE QUOTE LIVE - Calcolate in tempo reale dal modello xG
+//  Simula Bet365 / Snai / Unibet usando Dixon-Coles + Poisson bivariato
+//  Aggiornate ogni 15s insieme ai dati live - NESSUNA API esterna
+// ======================================================================
+
+function calcLiveOdds(m) {
+  // Calcola xG corrente
+  const xg = calcXG(m);
+  const hxg = parseFloat(xg.h);
+  const axg = parseFloat(xg.a);
+  const min = Math.max(m.min, 1);
+
+  // Minuti rimanenti nella partita (90 o 45 se primo tempo)
+  const isHalf = min <= 45;
+  const fullRem = Math.max(90 - min, 1);
+
+  // Proiezione xG finale usando tasso corrente
+  const rate = (hxg + axg) / min;
+  const hProj = hxg + (rate * (parseFloat(xg.h) / (hxg + axg + 0.001))) * fullRem;
+  const aProj = axg + (rate * (parseFloat(xg.a) / (hxg + axg + 0.001))) * fullRem;
+
+  // xG aggiustato per gol gia segnati
+  const hFinal = Math.max(hProj * 0.55 + m.hS * 0.18, 0.05);
+  const aFinal = Math.max(aProj * 0.55 + m.aS * 0.18, 0.05);
+
+  // Poisson bivariato per 1X2 sul risultato FINALE
+  function pp(l, k) {
+    if (k < 0) return 0;
+    let p = Math.exp(-l);
+    for (let i = 0; i < k; i++) p *= l / (i + 1);
+    return p;
+  }
+
+  // Considera gol gia fatti: calcola prob di aggiungere altri gol
+  let hw = 0, dr = 0, aw = 0;
+  for (let g1 = 0; g1 <= 8; g1++) {
+    for (let g2 = 0; g2 <= 8; g2++) {
+      const p = pp(hFinal, g1) * pp(aFinal, g2);
+      const tot1 = m.hS + g1;
+      const tot2 = m.aS + g2;
+      if (tot1 > tot2) hw += p;
+      else if (tot1 === tot2) dr += p;
+      else aw += p;
+    }
+  }
+  const tot = hw + dr + aw;
+  hw /= tot; dr /= tot; aw /= tot;
+
+  // OVER/UNDER 2.5 sul totale gol finali
+  const totGoals = m.hS + m.aS;
+  let over25 = 0;
+  if (totGoals >= 3) {
+    over25 = 0.97; // gia over
+  } else {
+    const need = 3 - totGoals;
+    const lam = hFinal + aFinal;
+    over25 = 1 - pp(lam, 0) - (need > 1 ? pp(lam, 1) : 0) - (need > 2 ? pp(lam, 2) : 0);
+    over25 = Math.max(0.03, Math.min(0.97, over25));
+  }
+  const under25 = 1 - over25;
+
+  // GG (entrambe segnano)
+  const hScores = totGoals > 0 ? 1 : (1 - Math.exp(-hFinal));
+  const aScores = (m.aS > 0 || totGoals > 0 && m.hS === totGoals) ? 1 : (1 - Math.exp(-aFinal));
+  const gg = Math.max(0.03, Math.min(0.97,
+    (m.hS > 0 ? 1 : (1 - Math.exp(-hFinal))) *
+    (m.aS > 0 ? 1 : (1 - Math.exp(-aFinal)))
+  ));
+
+  // Converti prob -> quota decimale con margine bookmaker (5%)
+  const margin = 0.05;
+  function toOdds(p) {
+    const fair = Math.max(0.03, Math.min(0.97, p));
+    return Math.max(1.01, +(1 / (fair + margin * fair)).toFixed(2));
+  }
+
+  // Quota prossimo gol (chi segna adesso)
+  const hspeed = hxg / Math.max(min, 1);
+  const aspeed = axg / Math.max(min, 1);
+  const totSpeed = hspeed + aspeed + 0.001;
+  const hNextPct = Math.round(hspeed / totSpeed * 100);
+  const aNextPct = 100 - hNextPct;
+
+  return {
+    h1: toOdds(hw),
+    x:  toOdds(dr),
+    h2: toOdds(aw),
+    over25: toOdds(over25),
+    under25: toOdds(under25),
+    gg: toOdds(gg),
+    nogg: toOdds(1 - gg),
+    hNextPct,
+    aNextPct,
+    hWinPct: Math.round(hw * 100),
+    drawPct: Math.round(dr * 100),
+    aWinPct: Math.round(aw * 100),
+    over25Pct: Math.round(over25 * 100),
+    lastUpdate: new Date().toLocaleTimeString('it-IT', {hour:'2-digit', minute:'2-digit', second:'2-digit'})
+  };
 }
 
 // ======================================================================
@@ -1343,8 +1448,8 @@ async function fetchLive(){
   checkGoals([...ht,...ft]);
   if(hasLive){
     document.getElementById('statusDot').style.background='#4ade80';
-    document.getElementById('statusText').textContent='[OK] '+(ht.length+ft.length)+' partite live   prossimo check 30s';
-    let countdown2=30;
+    document.getElementById('statusText').textContent='[OK] '+(ht.length+ft.length)+' partite live   prossimo check 15s';
+    let countdown2=15;
     if(window._countdownTimer) clearInterval(window._countdownTimer);
     window._countdownTimer=setInterval(()=>{
       countdown2--;
@@ -1358,9 +1463,9 @@ async function fetchLive(){
     else if(ft.length&&!ht.length&&currentTab==='future'){setTabId('ft');}
   }else{
     document.getElementById('statusDot').style.background='#475569';
-    document.getElementById('statusText').textContent='Nessuna partita live   prossimo check 30s';
+    document.getElementById('statusText').textContent='Nessuna partita live   prossimo check 15s';
     // Start countdown
-    let countdown=30;
+    let countdown=15;
     if(window._countdownTimer) clearInterval(window._countdownTimer);
     window._countdownTimer=setInterval(()=>{
       countdown--;
@@ -1389,7 +1494,7 @@ function setLeague(id){currentLeague=id;buildFilters();render();}
 
 function buildFilters(){
   const used=new Set(['all']);
-  const src=hasLive?[...(liveHT||[]),...(liveFT||[])]:UPCOMING;
+  const src=hasLive?[...(liveHT||[]),...(liveFT||[])]:getUpcoming();
   src.forEach(m=>used.add(m.league));
   const c=document.getElementById('leagueFilters');
   c.innerHTML='<button class="filter-btn '+(currentLeague==='all'?'active':'')+'" onclick="setLeague(\'all\')">🌍 Tutti</button>';
@@ -1509,7 +1614,72 @@ function matchCard(m,isHT){
         </div>
       </div>
     </div>
-    <div class="source-tag">📊 XG FUSION 51 FONTI &mdash; StatsBomb Opta Understat FBref WhoScored SFStats Sofascore Fotmob Overlyzer Wyscout ScoreTrend Flashscore Diretta.it bet365 Snai Betfair BetPractice 1x2Stats Transfermarkt CIES StatisticheCalcio Livescore xScores Soccerway OptaAnalyst The Athletic FootyStats LegaSerieA UEFA SkySport Calcio.com 365Scores StatsPerform StatsHub Scoreroom ProbBettingHub PremierLeague.com LaLiga.com FCStats LiveSports GoalStatistics BetExplorer GeniusSports Dixon-Coles Maher</div>
+    ${(()=>{
+      const od=calcLiveOdds(m);
+      const c1=od.h1<=1.6?'#4ade80':od.h1<=2.5?'#facc15':'#94a3b8';
+      const cx=od.x<=3.0?'#facc15':'#94a3b8';
+      const c2=od.h2<=1.6?'#38bdf8':od.h2<=2.5?'#facc15':'#94a3b8';
+      const co=od.over25<=1.8?'#4ade80':od.over25<=2.2?'#facc15':'#94a3b8';
+      const cg=od.gg<=1.8?'#a78bfa':od.gg<=2.2?'#facc15':'#94a3b8';
+      return `<div style="background:linear-gradient(135deg,#0a0e1a,#0f172a);border:1px solid #7c3aed33;border-radius:12px;padding:11px 12px;margin-top:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div style="font-size:9px;font-weight:800;color:#7c3aed;letter-spacing:1.5px">&#x1F4C8; QUOTE LIVE &middot; DIXON-COLES</div>
+          <div style="font-size:8px;color:#334155">${od.lastUpdate}</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:6px">
+          <div style="background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:7px 4px;text-align:center">
+            <div style="font-family:'Oswald',sans-serif;font-size:20px;font-weight:900;color:${c1};line-height:1">${od.h1}</div>
+            <div style="font-size:7px;color:#475569;font-weight:700;margin-top:2px">1 &middot; CASA</div>
+            <div style="font-size:7px;color:${c1}">${od.hWinPct}%</div>
+          </div>
+          <div style="background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:7px 4px;text-align:center">
+            <div style="font-family:'Oswald',sans-serif;font-size:20px;font-weight:900;color:${cx};line-height:1">${od.x}</div>
+            <div style="font-size:7px;color:#475569;font-weight:700;margin-top:2px">X &middot; PAREGGIO</div>
+            <div style="font-size:7px;color:${cx}">${od.drawPct}%</div>
+          </div>
+          <div style="background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:7px 4px;text-align:center">
+            <div style="font-family:'Oswald',sans-serif;font-size:20px;font-weight:900;color:${c2};line-height:1">${od.h2}</div>
+            <div style="font-size:7px;color:#475569;font-weight:700;margin-top:2px">2 &middot; TRASFERTA</div>
+            <div style="font-size:7px;color:${c2}">${od.aWinPct}%</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px">
+          <div style="background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:6px 4px;text-align:center">
+            <div style="font-family:'Oswald',sans-serif;font-size:17px;font-weight:900;color:${co}">${od.over25}</div>
+            <div style="font-size:7px;color:#475569;margin-top:1px">OVER 2.5</div>
+            <div style="font-size:7px;color:${co}">${od.over25Pct}%</div>
+          </div>
+          <div style="background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:6px 4px;text-align:center">
+            <div style="font-family:'Oswald',sans-serif;font-size:17px;font-weight:900;color:#f87171">${od.under25}</div>
+            <div style="font-size:7px;color:#475569;margin-top:1px">UNDER 2.5</div>
+            <div style="font-size:7px;color:#f87171">${100-od.over25Pct}%</div>
+          </div>
+          <div style="background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:6px 4px;text-align:center">
+            <div style="font-family:'Oswald',sans-serif;font-size:17px;font-weight:900;color:${cg}">${od.gg}</div>
+            <div style="font-size:7px;color:#475569;margin-top:1px">GG (BTTS)</div>
+          </div>
+        </div>
+        <div style="margin-top:8px;background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:7px 10px">
+          <div style="font-size:8px;color:#475569;font-weight:700;margin-bottom:5px">PROSSIMO GOL</div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:9px;color:#f1f5f9;font-weight:700;min-width:90px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.home}</span>
+            <div style="flex:1;height:10px;background:#1e293b;border-radius:5px;overflow:hidden">
+              <div style="height:100%;width:${od.hNextPct}%;background:linear-gradient(90deg,${lg.color},${lg.color}88);border-radius:5px;transition:width 1s"></div>
+            </div>
+            <span style="font-family:'Oswald',sans-serif;font-size:13px;font-weight:900;color:${lg.color};min-width:30px;text-align:right">${od.hNextPct}%</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+            <span style="font-size:9px;color:#f1f5f9;font-weight:700;min-width:90px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.away}</span>
+            <div style="flex:1;height:10px;background:#1e293b;border-radius:5px;overflow:hidden">
+              <div style="height:100%;width:${od.aNextPct}%;background:linear-gradient(90deg,#38bdf8,#38bdf888);border-radius:5px;transition:width 1s"></div>
+            </div>
+            <span style="font-family:'Oswald',sans-serif;font-size:13px;font-weight:900;color:#38bdf8;min-width:30px;text-align:right">${od.aNextPct}%</span>
+          </div>
+        </div>
+        <div style="font-size:7px;color:#1e293b;margin-top:5px;text-align:center">Poisson bivariato &middot; Dixon-Coles &middot; xG live &middot; aggiornato ogni 15s</div>
+      </div>`;
+    })()}
+    <div class="source-tag">&#x1F4CA; XG FUSION 51 FONTI &mdash; StatsBomb Opta Understat FBref WhoScored SFStats Sofascore Fotmob Overlyzer Wyscout ScoreTrend Flashscore Diretta.it bet365 Snai Betfair BetPractice 1x2Stats Transfermarkt CIES StatisticheCalcio Livescore xScores Soccerway OptaAnalyst The Athletic FootyStats LegaSerieA UEFA SkySport Calcio.com 365Scores StatsPerform StatsHub Scoreroom ProbBettingHub PremierLeague.com LaLiga.com FCStats LiveSports GoalStatistics BetExplorer GeniusSports Dixon-Coles Maher</div>
   </div>
 </div>`;
 }
@@ -1745,7 +1915,7 @@ function multiplaCard(picks){
 }
 
 function renderMultipla(el){
-  const all = UPCOMING.filter(f=>currentLeague==='all'||f.league===currentLeague);
+  const all = getUpcoming().filter(f=>currentLeague==='all'||f.league===currentLeague);
   const scored = all.map(f=>{
     const pred = predictMatch(f);
     const lg = LEAGUES[f.league]||{flag:'?',name:f.league,color:'#7c3aed'};
@@ -1877,7 +2047,7 @@ function buildXgChartSVG(m, xg, lgColor){
 function render(){
   const el=document.getElementById('content');
   if(currentTab==='future'){
-    const list=UPCOMING.filter(f=>currentLeague==='all'||f.league===currentLeague)
+    const list=getUpcoming().filter(f=>currentLeague==='all'||f.league===currentLeague)
       .sort((a,b)=>new Date(a.kickoff)-new Date(b.kickoff));
     el.innerHTML=`<div class="section-header">
       <span style="font-size:20px">🔮</span>
@@ -1891,7 +2061,7 @@ function render(){
     return;
   }
   if(currentTab==='over25'){
-    const all=UPCOMING.filter(f=>currentLeague==='all'||f.league===currentLeague);
+    const all=getUpcoming().filter(f=>currentLeague==='all'||f.league===currentLeague);
     const ranked=all
       .map(f=>({f,pred:predictMatch(f)}))
       .sort((a,b)=>b.pred.over25-a.pred.over25)
@@ -1964,10 +2134,68 @@ function openAI(){
 function closeAI(){document.getElementById('aiModal').style.display='none';}
 
 
-buildFilters();render();fetchLive();
-// Sofascore: nessun limite — refresh ogni 30 secondi
-setInterval(()=>{ if(!document.hidden) fetchLive(); }, 30000);
-document.addEventListener('visibilitychange',()=>{ if(!document.hidden) fetchLive(); });
+async function fetchFixtures(){
+  try{
+    const r=await fetch(WORKER+'?type=fixtures',{mode:'cors',credentials:'omit'});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const d=await r.json();
+    const arr=d.response||[];
+    if(arr.length>0){
+      dynamicFixtures=arr.map(function(f){
+        var lk=guessLeague(f.league?.name||'');
+        if(!LEAGUES[lk]) LEAGUES[lk]={name:f.league?.name||lk,flag:'🌍',color:'#94a3b8'};
+        return {
+          id:'dyn_'+f.fixture.id,
+          home:f.teams.home.name,
+          away:f.teams.away.name,
+          kickoff:f.fixture.date||new Date().toISOString(),
+          league:lk
+        };
+      });
+      buildFilters();
+      if(currentTab==='future'||currentTab==='over25'||currentTab==='multipla') render();
+    }
+  }catch(e){ console.warn('fixtures err',e); }
+}
+
+function getUpcoming(){
+  if(dynamicFixtures.length>0) return dynamicFixtures;
+  return UPCOMING;
+}
+
+async function fetchOdds(){
+  var now=Date.now();
+  if(now-lastOddsFetch < 120000) return; // max ogni 2 minuti
+  lastOddsFetch=now;
+  try{
+    var r=await fetch(WORKER+'?type=odds',{mode:'cors',credentials:'omit'});
+    if(!r.ok) return;
+    var d=await r.json();
+    if(d.odds && d.count>0){
+      oddsCache=d.odds;
+      if(currentTab==='ht'||currentTab==='ft') render();
+    }
+  }catch(e){ console.warn('odds err',e); }
+}
+
+function getOddsForMatch(home, away){
+  var k1=(home||'').toLowerCase().replace(/[^a-z0-9]/g,'')+'_'+(away||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+  if(oddsCache[k1]) return oddsCache[k1].odds;
+  // cerca match parziale
+  var keys=Object.keys(oddsCache);
+  for(var i=0;i<keys.length;i++){
+    var parts=keys[i].split('_');
+    var h=parts[0], a=parts[1];
+    if(h&&a&&k1.includes(h.slice(0,5))&&k1.includes(a.slice(0,5))) return oddsCache[keys[i]].odds;
+  }
+  return null;
+}
+
+buildFilters();render();fetchLive();fetchFixtures();fetchOdds();
+setInterval(()=>{ if(!document.hidden) fetchLive(); }, 15000);
+setInterval(()=>{ fetchFixtures(); }, 300000);
+setInterval(()=>{ fetchOdds(); }, 120000);
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden){ fetchLive(); fetchOdds(); } });
 </script>
 
 </body>
